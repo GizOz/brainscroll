@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bodyscroll</title>
+<meta name="theme-color" content="#dff1ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bodyscroll">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--acc:#2f8f83;--acc2:#5bbfa8;--ink:#1d1a17;--mute:#7b726b;--card:#fff;--line:#d9ebe5;--h:20}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#dff1ec;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif}
+body{background:linear-gradient(180deg,#e2f4ef 0%,#eaf5f1 45%,#eef3f1 100%)}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative;padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 6px}
+.logo{font-family:"New York",ui-serif,Georgia,serif;font-weight:700;font-size:30px;letter-spacing:-.5px;color:var(--acc)}
+.circ{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--acc);cursor:pointer;position:relative}
+.circ svg{width:20px;height:20px}
+.dot{position:absolute;top:8px;right:9px;min-width:8px;height:8px;border-radius:8px;background:var(--acc)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 18px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 15px;border-radius:999px;font:600 13.5px -apple-system,Inter,sans-serif;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+#feed{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#feed::-webkit-scrollbar{display:none}
+.card{height:100%;scroll-snap-align:start;scroll-snap-stop:always;padding:2px 14px 12px}
+.face{position:relative;height:100%;border-radius:30px;overflow:hidden;background:linear-gradient(160deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 25) 70% 42%));box-shadow:0 10px 30px rgba(30,90,80,.18);color:#fff}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .6s}
+.bg.on{opacity:1}
+.ico{position:absolute;top:22%;left:0;right:0;text-align:center;font-size:84px;opacity:.9}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 38%,rgba(10,6,4,.82) 100%)}
+.tag{position:absolute;top:16px;left:16px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px 12px;border-radius:999px;font:700 12px -apple-system,sans-serif;letter-spacing:.6px;text-transform:uppercase}
+.credit{position:absolute;top:22px;right:16px;font-size:10.5px;opacity:.75}
+.text{position:absolute;left:0;right:70px;bottom:0;padding:0 18px calc(104px + env(safe-area-inset-bottom)) 20px}
+h2{font-family:"New York",ui-serif,Georgia,serif;font-weight:700;font-size:clamp(26px,7.4vw,34px);line-height:1.12;margin-bottom:10px;text-shadow:0 2px 14px rgba(0,0,0,.35)}
+.body{font-size:15.5px;line-height:1.45;opacity:.96;margin-bottom:10px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.why{font-size:13.5px;line-height:1.4;opacity:.9}
+.why b{color:#c8f2e6}
+.acts{position:absolute;right:12px;bottom:calc(112px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center}
+.act{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:#fff;font:600 11px -apple-system,sans-serif;cursor:pointer;text-decoration:none}
+.act i{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center}
+.act svg{width:22px;height:22px}
+.act.on i{background:var(--acc)}
+.act.on svg{fill:#fff}
+nav{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;padding:8px;border-radius:999px;background:rgba(255,255,255,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 24px rgba(30,90,80,.18);z-index:5}
+nav button{width:50px;height:50px;border-radius:50%;border:0;background:rgba(255,255,255,.75);color:#5a4f48;display:grid;place-items:center;cursor:pointer}
+nav button svg{width:22px;height:22px}
+nav button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
+#saved{flex:1;overflow-y:auto;padding:6px 18px 120px;display:none}
+.s{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:12px;display:flex;gap:12px}
+.s .th{flex:none;width:64px;height:64px;border-radius:16px;background:#cfe8e1 center/cover;display:grid;place-items:center;font-size:28px}
+.s .tg{font:700 11px sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.s h3{font-family:"New York",ui-serif,Georgia,serif;font-size:18px;line-height:1.25;margin-bottom:6px}
+.s p{font-size:14px;line-height:1.45;color:#5c524b}
+.s button{margin-top:8px;background:none;border:0;color:var(--mute);font:13px sans-serif;cursor:pointer;padding:0}
+.empty{color:var(--mute);text-align:center;margin-top:90px;line-height:1.6}
+.endc{display:grid;place-items:center;height:100%}
+.endc .box{background:#fff;border-radius:28px;padding:28px;text-align:center;margin:0 14px;box-shadow:0 10px 30px rgba(30,90,80,.12)}
+.endc h2{color:var(--ink);text-shadow:none;font-size:26px}
+.endc p{color:var(--mute);margin-bottom:16px;font-size:15px}
+.btn{border:0;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font:700 15px -apple-system,sans-serif;padding:13px 22px;border-radius:999px;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.sheet{position:fixed;inset:0;background:rgba(30,18,10,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.show{display:flex}
+.panel{background:#fff;width:100%;max-width:560px;border-radius:30px 30px 0 0;padding:22px 22px calc(26px + env(safe-area-inset-bottom));max-height:86dvh;overflow:auto}
+.panel h3{font-family:"New York",ui-serif,Georgia,serif;font-size:24px;margin-bottom:6px}
+.panel p{color:var(--mute);font-size:14px;line-height:1.5;margin-bottom:14px}
+.panel label{display:block;font:700 12px sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(--mute);margin:12px 0 6px}
+.panel input,.panel select{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:#f6fbf9;font:16px -apple-system,sans-serif;color:var(--ink)}
+.row{display:flex;gap:10px;margin-top:18px}
+.morebody{white-space:pre-wrap;font-size:16px;line-height:1.55;color:#3b332d}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #bcd8d0;border-top-color:var(--acc);border-radius:50%;animation:r .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes r{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 70px);transform:translateX(-50%);background:#1d1a17;color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:30;opacity:0;pointer-events:none;transition:.25s;max-width:88vw;text-align:center}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">Bodyscroll</div>
+    <div class="circ" id="btnFresh" title="Fresh facts"></div>
+  </header>
+  <div class="chips" id="chips"></div>
+  <main id="feed"></main>
+  <section id="saved"></section>
+  <nav>
+    <button id="tFeed" class="on" aria-label="Feed"></button>
+    <button id="tSaved" aria-label="Saved"></button>
+    <button id="tSettings" aria-label="Settings"></button>
+  </nav>
+</div>
+
+<div class="sheet" id="sheetSet"><div class="panel">
+  <h3>Settings</h3>
+  <p>The starter set is hand-written. For an endless feed of fresh cards, add a free Google Gemini key (get one at aistudio.google.com/apikey) or your own Anthropic key. Keys stay on this phone and are only sent to the provider you choose.</p><p><b>General education only, not medical advice. Always check a claim before using it with clients, especially AI-written cards.</b></p>
+  <label>Fact writer</label>
+  <select id="inProv"><option value="gemini">Google Gemini (free tier)</option><option value="anthropic">Anthropic Claude (paid)</option></select>
+  <div id="gBox">
+    <label>Gemini API key</label>
+    <input id="inG" type="password" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Gemini model</label>
+    <input id="inGM" type="text" placeholder="gemini-flash-lite-latest" autocapitalize="off" spellcheck="false">
+  </div>
+  <div id="aBox" style="display:none">
+    <label>Anthropic API key</label>
+    <input id="inKey" type="password" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Model</label>
+    <select id="inModel"><option value="claude-haiku-5-5">Claude Haiku 5.5 (fast, cheapest)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 (better writing)</option></select>
+  </div>
+  <div class="row"><button class="btn" id="setSave">Save</button><button class="btn ghost" id="setClose">Close</button></div>
+  <div class="row"><button class="btn ghost" id="setClear">Clear saved &amp; generated facts</button></div>
+</div></div>
+
+<div class="sheet" id="sheetMore"><div class="panel">
+  <h3 id="moreTitle"></h3>
+  <div class="morebody" id="moreBody"></div>
+  <div class="row"><button class="btn ghost" id="moreClose">Close</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const IC={
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+ spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
+ sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h12M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/>',
+ ext:'<path d="M14 4h6v6M10 14L20 4M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"/>'
+};
+const svg=n=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>';
+
+const CATS={Anatomy:200,Pain:350,Recovery:150,Touch:20,Myths:285,Movement:95};
+const EMO={Anatomy:'🦴',Pain:'⚡',Recovery:'🌿',Touch:'🤲',Myths:'🔍',Movement:'🧘'};
+const SEED=[
+["Anatomy","The 'hamstring' is really three muscles","Biceps femoris, semitendinosus and semimembranosus run down the back of the thigh. They cross both the hip and the knee.","Fun fact for clients: the hamstring is actually three separate muscles.","Hamstring"],
+["Anatomy","Your biggest muscle is in your backside","The gluteus maximus is generally described as the largest muscle in the body by mass.","Sitting a lot means that big muscle gets very little use.","Gluteus maximus"],
+["Anatomy","The psoas links your spine to your leg","It runs from the lumbar spine through the pelvis to the top of the thigh bone and helps flex the hip.","It's one of the few muscles connecting the trunk to the leg, so hip and back complaints are often discussed together.","Psoas major muscle"],
+["Anatomy","Breathing is a muscle job too","The diaphragm is the main breathing muscle. It attaches to the lower ribs and the lumbar spine.","Your breathing muscle attaches to your lower back, so breathing and back tension can be connected.","Thoracic diaphragm"],
+["Anatomy","Your head weighs about 4.5 to 5 kg","An adult head is roughly the weight of a bowling ball, carried by a stack of seven neck vertebrae and many small muscles.","No wonder the neck muscles get tired. They carry a bowling ball all day.","Cervical vertebrae"],
+["Anatomy","Each foot has 26 bones","Both feet together hold 52 bones, about a quarter of the 206 bones in an adult skeleton.","A quarter of your bones are in your feet.","Foot"],
+["Anatomy","You were born with more bones than you have now","Babies have roughly 270 bones. Many fuse during growth, leaving 206 in most adults.","You lose about 60 bones before adulthood, because they fuse together.","Human skeleton"],
+["Anatomy","Skin is your largest organ","In adults it covers around 1.5 to 2 square metres and is packed with touch receptors.","Your skin is your biggest sense organ, and massage speaks to it directly.","Human skin"],
+["Anatomy","Fascia is a connected web of tissue","Fascia wraps muscles, organs and nerves in a continuous network of connective tissue. How much massage changes it is still being researched.","The tissue is connected, which is one reason I sometimes work away from where it hurts. Research on the exact effects is still developing.","Fascia"],
+["Pain","Pain is made by the brain","Nociceptors signal possible danger, but whether you feel pain depends on the brain weighing that signal with context, mood and past experience.","Pain isn't a direct measure of damage. It's your brain's judgment about danger.","Pain"],
+["Pain","Pain can outlast the injury","In some people the nervous system becomes more sensitive, so pain continues after tissue has healed. This is called central sensitization.","Sometimes the alarm system stays turned up even after the tissue is fine.","Central sensitization"],
+["Pain","Rubbing a bumped elbow really does help","The gate control theory (1965) proposed that touch signals can dampen pain signals at the spinal cord. The theory has been refined since but still shapes how we think about it.","That instinct to rub a bumped elbow isn't silly. It has a scientific explanation.","Gate control theory"],
+["Pain","Some nerves are built just for gentle stroking","C-tactile afferents respond best to slow, light stroking, around 3 centimetres per second, and are linked to pleasant touch.","Slow, gentle touch activates special nerve fibres tuned to feel pleasant.","C-tactile afferent"],
+["Pain","Scans often look 'bad' in people with no pain","Studies find disc bulges and degeneration on spine scans in many people with no back pain, and the rates rise with age.","An abnormal scan doesn't always explain the pain, because many pain-free people have the same findings.","Low back pain"],
+["Pain","Muscle 'knots' are still debated","Trigger points are widely used in practice, but researchers still disagree about what they are physically and how best to define them.","Even experts argue about what a muscle knot actually is.","Trigger point"],
+["Pain","Tension-type headache is the most common headache","It's often described as a tight band or pressure around the head, and stress and muscle tension are commonly associated with it.","Tension headaches are the most common type, and many people link them to stress.","Tension headache"],
+["Pain","Carpal tunnel isn't clearly caused by typing","Evidence that routine keyboard use causes carpal tunnel syndrome is weak, and other factors such as genetics and health conditions seem to matter.","Despite the popular belief, typing hasn't been clearly shown to cause carpal tunnel.","Carpal tunnel syndrome"],
+["Recovery","Soreness peaks a day or two after the workout","Delayed onset muscle soreness usually appears 12 to 24 hours after unfamiliar exercise and peaks around 24 to 72 hours.","If you're sorest two days after, that's completely normal.","Delayed onset muscle soreness"],
+["Recovery","Massage may modestly ease muscle soreness","Reviews suggest massage can reduce soreness after hard exercise to a small to moderate degree, though study quality varies.","Research suggests massage can take the edge off post-workout soreness, though the effect is modest.","Delayed onset muscle soreness"],
+["Movement","Foam rolling can boost flexibility briefly","Reviews find short-term gains in range of motion after foam rolling without hurting performance. Longer-term effects are less clear.","Foam rolling can loosen you up for a short while, but the long-term benefit is unclear.","Foam roller"],
+["Movement","Stretching often changes tolerance, not length","Studies suggest part of the flexibility gained from stretching comes from tolerating more stretch rather than the muscle becoming longer.","A lot of what we call flexibility is your nervous system relaxing its guard.","Stretching"],
+["Recovery","Slow breathing calms the body","Breathing at around six breaths a minute is linked to higher heart rate variability and a calmer state in several studies, via the vagus nerve.","Try breathing slowly for a minute, about six breaths a minute, and notice what changes.","Vagus nerve"],
+["Myths","'Flushing out toxins' isn't a good reason for massage","The idea that massage releases toxins that water then flushes out isn't well supported. Drinking water is still fine, just not for that reason.","Drink water, sure, but the 'toxin flush' idea isn't well supported by research.","Massage"],
+["Myths","There's no single perfect posture","Research finds only a weak link between posture and pain. Moving and changing position often seems to matter more than holding a perfect one.","The best posture is your next posture. Change it often.","Neutral spine"],
+["Touch","Massage is one of the oldest healing practices","Egyptian tomb art from around 2400 BCE shows people having their hands and feet worked on, and massage appears in ancient Chinese, Indian and Greek writings.","People have been doing massage for at least 4,000 years.","Massage"],
+["Touch","Touch can lower stress markers","Studies suggest massage may lower cortisol and raise oxytocin or relaxation measures, though results vary between studies.","Research suggests massage can reduce stress hormones, although studies differ.","Massage"]
+].map(a=>({cat:a[0],title:a[1],body:a[2],why:a[3],wiki:a[4]}));
+
+const $=s=>document.querySelector(s);
+const feed=$('#feed'),chips=$('#chips'),savedEl=$('#saved');
+const ls={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let S=ls.get('bd_settings',{key:'',model:'claude-haiku-5-5'});
+let saved=ls.get('bd_saved',[]), gen=ls.get('bd_gen',[]).filter(x=>x&&x.title&&CATS[x.cat]!==undefined);
+let imgCache=ls.get('bd_img',{});
+let cat='Mix', loading=false, autoOff=false, items;
+const key=i=>i.title.toLowerCase();
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+items=shuffle(SEED.concat(gen));
+const isSaved=i=>saved.some(s=>key(s)===key(i));
+const visible=()=>cat==='Mix'?items:items.filter(i=>i.cat===cat);
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2600)}
+
+/* ---------- Claude API (own key) ---------- */
+async function claude(prompt,max){
+  if(!S.key){const e=new Error('nokey');e.code='nokey';throw e}
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:S.model,max_tokens:max||1600,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(e){}const e=new Error(m||('HTTP '+r.status));e.code=r.status;throw e}
+  const j=await r.json();return (j.content||[]).map(c=>c.text||'').join('');
+}
+
+const prov=()=>S.provider||(S.key?'anthropic':'gemini');
+const hasLLM=()=>prov()==='anthropic'?!!S.key:!!S.gkey;
+async function gemini(prompt,max){
+  if(!S.gkey){const e=new Error('nokey');e.code='nokey';throw e}
+  const m=S.gmodel||'gemini-flash-lite-latest';
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent?key='+encodeURIComponent(S.gkey),{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:max||1600,temperature:1}})});
+  if(!r.ok){let msg='';try{msg=(await r.json()).error.message}catch(e){}const e=new Error(msg||('HTTP '+r.status));e.code=r.status;throw e}
+  const j=await r.json();return ((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||'').join('');
+}
+const llm=(prompt,max)=>prov()==='anthropic'?claude(prompt,max):gemini(prompt,max);
+
+/* ---------- Real photos from Wikipedia ---------- */
+async function wikiImage(title){
+  if(!title)return null;
+  if(title in imgCache)return imgCache[title]||null;
+  try{
+    const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(title.replace(/ /g,'_'))+'?redirect=true');
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    let u=j.thumbnail&&j.thumbnail.source;
+    if(u)u=u.replace(/\/(\d+)px-/,'/960px-');
+    imgCache[title]=u||0;ls.set('bd_img',imgCache);return u||null;
+  }catch(e){return null}
+}
+async function paintImage(card){
+  const it=card.__item;if(!it||card.__img)return;card.__img=true;if(it.noimg)return;
+  let u=it.img||await wikiImage(it.wiki);if(!u)return;u=u.replace('/900px-','/960px-');
+  const bg=card.querySelector('.bg'),pre=new Image();
+  pre.onload=()=>{bg.style.backgroundImage='url("'+u+'")';bg.classList.add('on');card.querySelector('.ico').style.display='none';card.querySelector('.credit').textContent='Photo: Wikipedia'};
+  pre.onerror=()=>{if(/\/960px-/.test(pre.src)&&!pre.__r){pre.__r=1;u=u.replace('/960px-','/500px-');pre.src=u}};pre.src=u;
+}
+
+/* ---------- Cards ---------- */
+function cardEl(it){
+  const d=document.createElement('article');d.className='card';
+  d.innerHTML='<div class="face"><div class="bg"></div><div class="ico"></div><div class="shade"></div><div class="tag"></div><div class="credit"></div>'
+   +'<div class="text"><h2></h2><p class="body"></p><p class="why"><b>Tell clients · </b><span></span></p></div>'
+   +'<div class="acts"><button class="act sv"><i>'+svg('heart')+'</i><span>Save</span></button><button class="act mr"><i>'+svg('chat')+'</i><span>More</span></button><a class="act ph" target="_blank" rel="noopener"><i>'+svg('ext')+'</i><span>Photos</span></a></div></div>';
+  d.querySelector('.face').style.setProperty('--h',CATS[it.cat]??25);
+  d.querySelector('.ico').textContent=EMO[it.cat]||'✨';
+  d.querySelector('.tag').textContent=it.cat;
+  d.querySelector('h2').textContent=it.title;
+  d.querySelector('.body').textContent=it.body;
+  d.querySelector('.why span').textContent=it.why||'';
+  d.querySelector('.ph').href='https://www.google.com/search?tbm=isch&q='+encodeURIComponent(it.title);
+  const sv=d.querySelector('.sv'),paint=()=>sv.classList.toggle('on',isSaved(it));paint();
+  sv.onclick=()=>{if(isSaved(it))saved=saved.filter(s=>key(s)!==key(it));else saved.push(it);ls.set('bd_saved',saved);paint();badge()};
+  d.querySelector('.mr').onclick=()=>openMore(it);
+  d.__item=it;return d;
+}
+function endEl(){
+  const d=document.createElement('article');d.className='card endc';d.id='end';
+  d.innerHTML='<div class="box"><h2>You\'ve seen them all</h2><p></p><button class="btn" id="endBtn"></button></div>';
+  d.querySelector('p').textContent='Tap Fresh facts for more.';
+  const b=d.querySelector('#endBtn');b.textContent='✨ Fresh facts';
+  b.onclick=()=>loadMore(true);
+  return d;
+}
+let io;
+function render(){
+  feed.innerHTML='';visible().forEach(i=>feed.appendChild(cardEl(i)));feed.appendChild(endEl());feed.scrollTop=0;observe();
+  const f=feed.querySelector('.card');if(f&&f.__item)paintImage(f);
+}
+function observe(){
+  if(io)io.disconnect();
+  io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;const c=e.target;if(!c.__item)return;
+    paintImage(c);
+    const cs=[...feed.querySelectorAll('.card:not(.endc)')],idx=cs.indexOf(c);
+    for(let k=idx+1;k<=idx+2&&k<cs.length;k++)paintImage(cs[k]);
+    if(cs.length-idx<=3)loadMore(false);
+  }),{root:feed,threshold:.6});
+  feed.querySelectorAll('.card').forEach(c=>io.observe(c));
+}
+
+/* ---------- Fresh facts ---------- */
+async function loadMore(manual){
+  if(manual)autoOff=false;
+  if(loading||(autoOff&&!manual))return;
+  if(!hasLLM()){if(manual){toast('Add a free Gemini key in Settings');openSet()}return}
+  loading=true;const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Writing…';eb.disabled=true}
+  $('#btnFresh').style.opacity=.5;
+  const have=items.map(i=>i.title).slice(-60).join('; ');
+  const cats=Object.keys(CATS);
+  const topic=cat==='Mix'?'a varied mix of: '+cats.join(', '):cat;
+  const prompt='Write 8 cards for a practising massage therapist. Topic: '+topic+'.\n'
+   +'Each card is a fact the therapist can use as a talking point with clients or as a continuing-education nugget: anatomy, pain science, recovery, the psychology and physiology of touch, common myths, movement and posture. Make them surprising and useful, not textbook basics.\n'
+   +'Strict rules: only well-established facts you are confident about; clearly say when evidence is mixed or small; never diagnose, never promise a cure, no treatment doses, no detox or energy-field claims, no invented studies or statistics. Do not repeat: '+have+'.\n'
+   +'Return ONLY a JSON array of 8 objects with keys: cat (one of '+cats.join('|')+'), title (max 9 words, a hook), body (1-2 sentences, max 42 words), say (one natural sentence the therapist could say aloud to a client, max 26 words, cautious wording), wiki (exact title of an English Wikipedia article about an anatomical structure, condition, technique or concept that illustrates it; never a living person). English only.';
+  try{
+    const txt=await llm(prompt,2400);
+    const m=txt.match(/\[[\s\S]*\]/);const arr=m?JSON.parse(m[0]):[];
+    const have2=new Set(items.map(key));
+    const fresh=arr.filter(x=>x&&x.title&&x.body&&CATS[x.cat]!==undefined&&!have2.has(key(x))).map(x=>({cat:x.cat,title:String(x.title),body:String(x.body),why:String(x.say||x.why||''),wiki:x.wiki?String(x.wiki):''}));
+    if(fresh.length){
+      items.push(...fresh);gen.push(...fresh);ls.set('bd_gen',gen.slice(-200));
+      const end=$('#end');
+      fresh.filter(i=>cat==='Mix'||i.cat===cat).forEach(i=>{const el=cardEl(i);feed.insertBefore(el,end);io.observe(el)});
+      if(manual)toast(fresh.length+' new facts added');
+    }
+  }catch(e){
+    autoOff=true;
+    if(e.code==='nokey')toast('Add your API key in Settings');
+    else if(e.code===401||e.code===400||e.code===403)toast('API key was rejected. Check it in Settings.');
+    else if(e.code===429)toast('Rate limited. Try again in a minute.');
+    else if(manual||!navigator.onLine)toast(navigator.onLine?'Could not load fresh facts':'You are offline');
+  }
+  loading=false;$('#btnFresh').style.opacity=1;
+  const b=$('#endBtn');if(b){b.disabled=false;b.textContent='✨ Fresh facts'}
+}
+
+
+/* ---------- Free mode: Wikipedia ---------- */
+async function wikiFeed(have){
+  const out=[];
+  const add=o=>{if(o&&o.title&&!have.has(key(o))){have.add(key(o));out.push(o)}};
+  const clip=t=>{t=(t||'').replace(/\s+/g,' ').trim();if(t.length<=250)return t;const c=t.slice(0,250),i=c.lastIndexOf('. ');return i>110?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…'};
+  const cap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):'';
+  const big=u=>u.replace(/\/(\d+)px-/,'/960px-');
+  const person=t=>/\bborn\b|\d{4}\s*[–—-]\s*\d{4}|\bdied\b|\b(?:is|was) an? [A-Za-z-]+ (?:actor|actress|singer|rapper|businessman|businessperson|politician|footballer|photographer|musician|athlete|comedian|entrepreneur|executive|director|producer|writer|author|model|engineer)/i.test((t||'').slice(0,300));
+  const skip=/^(Main_Page|Special:|Wikipedia:|Portal:|Help:|File:|Category:|List_of|Deaths_in|\d{4}_in_)/;
+  const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
+  // Trending: most-read Wikipedia articles (yesterday), a good proxy for what people are talking about
+  for(const back of [1,2]){
+    try{
+      const d=new Date(Date.now()-back*864e5),y=d.getUTCFullYear(),m=String(d.getUTCMonth()+1).padStart(2,'0'),dd=String(d.getUTCDate()).padStart(2,'0');
+      const r=await fetch('https://en.wikipedia.org/api/rest_v1/feed/featured/'+y+'/'+m+'/'+dd);
+      if(!r.ok)continue;
+      const j=await r.json();
+      const arts=((j.mostread&&j.mostread.articles)||[]).filter(a=>a&&a.title&&!skip.test(a.title)&&a.type==='standard'&&a.extract&&a.extract.length>=80).slice(0,40);
+      arts.sort(()=>Math.random()-.5).slice(0,6).forEach(a=>{
+        const t=a.title.replace(/_/g,' '),isP=person(a.extract);
+        add({cat:'Trending',title:'Trending now: '+t,body:clip(a.extract),why:fmt(a.views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:a.title,img:'',noimg:true});
+      });
+      if(out.length)break;
+    }catch(e){}
+  }
+  return out;
+}
+async function loadWiki(manual){
+  loading=true;$('#btnFresh').style.opacity=.5;
+  const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Loading…';eb.disabled=true}
+  try{
+    const fresh=await wikiFeed(new Set(items.map(key)));
+    if(fresh.length){
+      items.push(...fresh);gen.push(...fresh);ls.set('bd_gen',gen.slice(-200));
+      const end=$('#end');
+      fresh.filter(i=>cat==='Mix'||i.cat===cat).forEach(i=>{const el=cardEl(i);feed.insertBefore(el,end);io.observe(el)});
+      if(manual)toast(fresh.length+' new facts added');
+    }else{if(!manual)autoOff=true;else toast('Nothing new right now, try again')}
+  }catch(e){autoOff=true;if(manual)toast(navigator.onLine?'Could not load more':'You are offline')}
+  loading=false;$('#btnFresh').style.opacity=1;
+  const b=$('#endBtn');if(b){b.disabled=false;b.textContent='✨ Fresh facts'}
+}
+
+/* ---------- More ---------- */
+async function openMore(it){
+  $('#moreTitle').textContent=it.title;const b=$('#moreBody');$('#sheetMore').classList.add('show');
+  if(it.more){b.textContent=it.more;return}
+  if(!hasLLM()){
+    b.innerHTML='<span class="spin"></span>Loading…';
+    try{const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent((it.wiki||it.title).replace(/ /g,'_')));const j=await r.json();it.more=(j.extract||'No more detail available.')+'\n\nSource: Wikipedia';b.textContent=it.more}catch(e){b.textContent='Could not load more right now.'}
+    return;
+  }
+  b.innerHTML='<span class="spin"></span>Thinking…';
+  try{
+    const t=await llm('Expand this fact in 90-120 words of plain text, no markdown: a bit more context, one genuinely interesting detail, and one practical way to use the idea. If you are unsure about a detail, leave it out.\n\nFact: '+it.title+'. '+it.body,600);
+    it.more=t.trim();b.textContent=it.more;
+  }catch(e){b.textContent=(e.code===401||e.code===400||e.code===403)?'API key was rejected. Check it in Settings.':'Could not load more right now.'}
+}
+
+/* ---------- Chips, tabs, saved, settings ---------- */
+function renderChips(){
+  chips.innerHTML='';['Mix',...Object.keys(CATS)].forEach(c=>{
+    const b=document.createElement('button');b.className='chip'+(c===cat?' on':'');b.textContent=c;
+    b.onclick=()=>{cat=c;renderChips();render()};chips.appendChild(b)});
+}
+function badge(){$('#tSaved').innerHTML=svg('heart')+(saved.length?'<span class="dot" style="position:relative;display:none"></span>':'')}
+function renderSaved(){
+  savedEl.innerHTML='';
+  if(!saved.length){savedEl.innerHTML='<p class="empty">Nothing saved yet.<br>Tap the heart on a fact to keep it here.</p>';return}
+  saved.slice().reverse().forEach(it=>{
+    const d=document.createElement('div');d.className='s';
+    d.innerHTML='<div class="th"></div><div><div class="tg"></div><h3></h3><p></p><button>Remove</button></div>';
+    const th=d.querySelector('.th');th.textContent=EMO[it.cat]||'✨';
+    const tu=it.img||(it.wiki&&imgCache[it.wiki]);if(tu){th.textContent='';th.style.backgroundImage='url("'+tu+'")'}
+    d.querySelector('.tg').textContent=it.cat;d.querySelector('h3').textContent=it.title;d.querySelector('p').textContent=it.body;
+    d.querySelector('button').onclick=()=>{saved=saved.filter(s=>key(s)!==key(it));ls.set('bd_saved',saved);renderSaved()};
+    savedEl.appendChild(d);
+  });
+}
+function show(t){
+  const f=t==='feed';feed.style.display=f?'':'none';chips.style.display=f?'':'none';savedEl.style.display=f?'none':'block';
+  $('#tFeed').classList.toggle('on',f);$('#tSaved').classList.toggle('on',!f);
+  if(!f)renderSaved();
+}
+$('#tFeed').innerHTML=svg('home');$('#tSettings').innerHTML=svg('sliders');$('#btnFresh').innerHTML=svg('spark');badge();
+$('#tFeed').onclick=()=>show('feed');$('#tSaved').onclick=()=>show('saved');
+$('#btnFresh').onclick=()=>{show('feed');loadMore(true)};
+function syncBoxes(){const g=$('#inProv').value==='gemini';$('#gBox').style.display=g?'':'none';$('#aBox').style.display=g?'none':''}
+function openSet(){$('#inProv').value=prov();$('#inG').value=S.gkey||'';$('#inGM').value=S.gmodel||'';$('#inKey').value=S.key||'';$('#inModel').value=S.model||'claude-haiku-5-5';syncBoxes();$('#sheetSet').classList.add('show')}
+$('#inProv').onchange=syncBoxes;
+$('#tSettings').onclick=openSet;
+$('#setClose').onclick=()=>$('#sheetSet').classList.remove('show');
+$('#setSave').onclick=()=>{S={provider:$('#inProv').value,key:$('#inKey').value.trim(),model:$('#inModel').value,gkey:$('#inG').value.trim(),gmodel:$('#inGM').value.trim()};ls.set('bd_settings',S);autoOff=false;$('#sheetSet').classList.remove('show');toast(hasLLM()?'Saved. Fetching fresh facts…':'Saved');render();loadMore(false)};
+$('#setClear').onclick=()=>{saved=[];gen=[];ls.set('bd_saved',[]);ls.set('bd_gen',[]);items=shuffle(SEED);$('#sheetSet').classList.remove('show');toast('Cleared');render()};
+$('#moreClose').onclick=()=>$('#sheetMore').classList.remove('show');
+['sheetSet','sheetMore'].forEach(id=>$('#'+id).addEventListener('click',e=>{if(e.target.id===id)e.target.classList.remove('show')}));
+
+renderChips();render();
+loadMore(false);
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>

@@ -201,7 +201,7 @@ async function wikiImage(title){
 }
 async function paintImage(card){
   const it=card.__item;if(!it||card.__img)return;card.__img=true;
-  let u=it.img||await wikiImage(it.wiki);if(!u)return;
+  let u=it.img||await wikiImage(it.wiki);if(!u)return;u=u.replace('/900px-','/960px-');
   const bg=card.querySelector('.bg'),pre=new Image();
   pre.onload=()=>{bg.style.backgroundImage='url("'+u+'")';bg.classList.add('on');card.querySelector('.ico').style.display='none';card.querySelector('.credit').textContent='Photo: Wikipedia'};
   pre.onerror=()=>{if(/\/960px-/.test(pre.src)&&!pre.__r){pre.__r=1;u=u.replace('/960px-','/500px-');pre.src=u}};pre.src=u;

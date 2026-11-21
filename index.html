@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brainscroll</title>
+<meta name="theme-color" content="#fbe9df">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Brainscroll">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--acc:#ee5a24;--acc2:#ff8a4c;--ink:#1d1a17;--mute:#7b726b;--card:#fff;--line:#f0e2d9;--h:20}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#fbe9df;color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif}
+body{background:linear-gradient(180deg,#fcebe2 0%,#f7ece6 45%,#efe9e5 100%)}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative;padding-top:env(safe-area-inset-top)}
+header{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 6px}
+.logo{font-family:"New York",ui-serif,Georgia,serif;font-weight:700;font-size:30px;letter-spacing:-.5px;color:var(--acc)}
+.circ{width:42px;height:42px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;color:var(--acc);cursor:pointer;position:relative}
+.circ svg{width:20px;height:20px}
+.dot{position:absolute;top:8px;right:9px;min-width:8px;height:8px;border-radius:8px;background:var(--acc)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 18px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 15px;border-radius:999px;font:600 13.5px -apple-system,Inter,sans-serif;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent}
+#feed{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#feed::-webkit-scrollbar{display:none}
+.card{height:100%;scroll-snap-align:start;scroll-snap-stop:always;padding:2px 14px 12px}
+.face{position:relative;height:100%;border-radius:30px;overflow:hidden;background:linear-gradient(160deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 25) 70% 42%));box-shadow:0 10px 30px rgba(120,60,30,.18);color:#fff}
+.bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .6s}
+.bg.on{opacity:1}
+.ico{position:absolute;top:22%;left:0;right:0;text-align:center;font-size:84px;opacity:.9}
+.shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 38%,rgba(10,6,4,.82) 100%)}
+.tag{position:absolute;top:16px;left:16px;background:rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px 12px;border-radius:999px;font:700 12px -apple-system,sans-serif;letter-spacing:.6px;text-transform:uppercase}
+.credit{position:absolute;top:22px;right:16px;font-size:10.5px;opacity:.75}
+.text{position:absolute;left:0;right:70px;bottom:0;padding:0 18px calc(104px + env(safe-area-inset-bottom)) 20px}
+h2{font-family:"New York",ui-serif,Georgia,serif;font-weight:700;font-size:clamp(26px,7.4vw,34px);line-height:1.12;margin-bottom:10px;text-shadow:0 2px 14px rgba(0,0,0,.35)}
+.body{font-size:15.5px;line-height:1.45;opacity:.96;margin-bottom:10px;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.why{font-size:13.5px;line-height:1.4;opacity:.9}
+.why b{color:#ffc8a8}
+.acts{position:absolute;right:12px;bottom:calc(112px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;align-items:center}
+.act{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:#fff;font:600 11px -apple-system,sans-serif;cursor:pointer;text-decoration:none}
+.act i{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:grid;place-items:center}
+.act svg{width:22px;height:22px}
+.act.on i{background:var(--acc)}
+.act.on svg{fill:#fff}
+nav{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;padding:8px;border-radius:999px;background:rgba(255,255,255,.55);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.7);box-shadow:0 8px 24px rgba(120,60,30,.18);z-index:5}
+nav button{width:50px;height:50px;border-radius:50%;border:0;background:rgba(255,255,255,.75);color:#5a4f48;display:grid;place-items:center;cursor:pointer}
+nav button svg{width:22px;height:22px}
+nav button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}
+#saved{flex:1;overflow-y:auto;padding:6px 18px 120px;display:none}
+.s{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:12px;display:flex;gap:12px}
+.s .th{flex:none;width:64px;height:64px;border-radius:16px;background:#f3d9cb center/cover;display:grid;place-items:center;font-size:28px}
+.s .tg{font:700 11px sans-serif;letter-spacing:.6px;text-transform:uppercase;color:var(--acc);margin-bottom:4px}
+.s h3{font-family:"New York",ui-serif,Georgia,serif;font-size:18px;line-height:1.25;margin-bottom:6px}
+.s p{font-size:14px;line-height:1.45;color:#5c524b}
+.s button{margin-top:8px;background:none;border:0;color:var(--mute);font:13px sans-serif;cursor:pointer;padding:0}
+.empty{color:var(--mute);text-align:center;margin-top:90px;line-height:1.6}
+.endc{display:grid;place-items:center;height:100%}
+.endc .box{background:#fff;border-radius:28px;padding:28px;text-align:center;margin:0 14px;box-shadow:0 10px 30px rgba(120,60,30,.12)}
+.endc h2{color:var(--ink);text-shadow:none;font-size:26px}
+.endc p{color:var(--mute);margin-bottom:16px;font-size:15px}
+.btn{border:0;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;font:700 15px -apple-system,sans-serif;padding:13px 22px;border-radius:999px;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.sheet{position:fixed;inset:0;background:rgba(30,18,10,.45);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.show{display:flex}
+.panel{background:#fff;width:100%;max-width:560px;border-radius:30px 30px 0 0;padding:22px 22px calc(26px + env(safe-area-inset-bottom));max-height:86dvh;overflow:auto}
+.panel h3{font-family:"New York",ui-serif,Georgia,serif;font-size:24px;margin-bottom:6px}
+.panel p{color:var(--mute);font-size:14px;line-height:1.5;margin-bottom:14px}
+.panel label{display:block;font:700 12px sans-serif;letter-spacing:.5px;text-transform:uppercase;color:var(--mute);margin:12px 0 6px}
+.panel input,.panel select{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:#fdf8f5;font:16px -apple-system,sans-serif;color:var(--ink)}
+.row{display:flex;gap:10px;margin-top:18px}
+.morebody{white-space:pre-wrap;font-size:16px;line-height:1.55;color:#3b332d}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #d9c2b5;border-top-color:var(--acc);border-radius:50%;animation:r .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes r{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 70px);transform:translateX(-50%);background:#1d1a17;color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:30;opacity:0;pointer-events:none;transition:.25s;max-width:88vw;text-align:center}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">Brainscroll</div>
+    <div class="circ" id="btnFresh" title="Fresh facts"></div>
+  </header>
+  <div class="chips" id="chips"></div>
+  <main id="feed"></main>
+  <section id="saved"></section>
+  <nav>
+    <button id="tFeed" class="on" aria-label="Feed"></button>
+    <button id="tSaved" aria-label="Saved"></button>
+    <button id="tSettings" aria-label="Settings"></button>
+  </nav>
+</div>
+
+<div class="sheet" id="sheetSet"><div class="panel">
+  <h3>Settings</h3>
+  <p>Free by default: new facts and photos come from Wikipedia, no account needed. Optional: add your own Anthropic API key to get facts written by Claude instead. The key stays on this phone and is only sent to Anthropic.</p>
+  <label>Anthropic API key (optional)</label>
+  <input id="inKey" type="password" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <label>Model</label>
+  <select id="inModel">
+    <option value="claude-haiku-5-5">Claude Haiku 5.5 (fast, cheapest)</option>
+    <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (better writing)</option>
+  </select>
+  <div class="row"><button class="btn" id="setSave">Save</button><button class="btn ghost" id="setClose">Close</button></div>
+  <div class="row"><button class="btn ghost" id="setClear">Clear saved &amp; generated facts</button></div>
+</div></div>
+
+<div class="sheet" id="sheetMore"><div class="panel">
+  <h3 id="moreTitle"></h3>
+  <div class="morebody" id="moreBody"></div>
+  <div class="row"><button class="btn ghost" id="moreClose">Close</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const IC={
+ home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+ spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.7 1.8L21.5 18.5l-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',
+ sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h12M20 18h0"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/>',
+ ext:'<path d="M14 4h6v6M10 14L20 4M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"/>'
+};
+const svg=n=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>';
+
+const CATS={Discover:25,Mind:340,Marketing:18,Science:205,Nature:140,History:32,Language:285,Money:160};
+const EMO={Discover:'🔭',Mind:'🧠',Marketing:'📣',Science:'🔬',Nature:'🌿',History:'🏛️',Language:'🗣️',Money:'💰'};
+const SEED=[
+["Mind","The Zeigarnik effect","People tend to remember unfinished tasks better than finished ones. An open loop keeps nagging at your attention until it is closed.","It's why cliffhangers and 'you left something in your cart' work.","Zeigarnik effect"],
+["Nature","Octopuses have three hearts","Two pump blood through the gills, one pumps it around the body. Their blood is blue because it carries oxygen with copper-based hemocyanin instead of iron-based hemoglobin.","Evolution solved oxygen transport more than one way.","Octopus"],
+["Science","Honey barely spoils","Its low water content and acidity make it a hostile place for microbes. Sealed honey found in ancient Egyptian tombs was still preserved after thousands of years.","Preservation is often about chemistry, not refrigeration.","Honey"],
+["History","Oxford is older than the Aztec Empire","Teaching at Oxford is documented from around 1096. The Aztec city of Tenochtitlan was founded in 1325.","Our sense of 'ancient' is often off by centuries.","University of Oxford"],
+["Money","The Rule of 72","Divide 72 by an annual return percentage to estimate how many years it takes money to double. At 6% it's about 12 years; at 9%, about 8.","A 30-second mental shortcut for judging any growth rate.","Compound interest"],
+["Language","Hebrew came back from the dead","Hebrew stopped being an everyday spoken language centuries ago, but was revived as a mother tongue in the late 19th and 20th centuries.","One of the very few revived languages at national scale.","Hebrew language"],
+["Marketing","The decoy effect","Add a third option that is clearly worse than one of two existing choices, and people shift toward the option it makes look better.","Pricing tables are persuasion architecture, not just lists.","Decoy effect"],
+["Science","Bananas are slightly radioactive","They contain potassium, and a tiny fraction of natural potassium is the radioactive isotope potassium-40. The dose is far too small to matter.","Radiation is everywhere in tiny amounts; dose is what counts.","Banana"],
+["Science","A day on Venus is longer than its year","Venus rotates once every ~243 Earth days but orbits the Sun in ~225. It also spins backwards compared with most planets.","'Day' and 'year' are definitions that other worlds break.","Venus"],
+["Mind","The peak-end rule","We judge an experience mostly by its most intense moment and by how it ended, not by the average of every moment or its length.","A strong finish can rescue a mediocre experience.","Peak–end rule"],
+["Nature","Wombats make cube-shaped droppings","The shape forms in their intestines, and wombats stack the cubes to mark territory.","Biology can make shapes you'd assume need a mold.","Wombat"],
+["Science","Your brain is an energy hog","The brain is about 2% of body weight but uses roughly 20% of the body's energy at rest.","Mental fatigue is real; sleep and food affect thinking.","Human brain"],
+["History","Cleopatra lived closer to the Moon landing than to the Great Pyramid","The Great Pyramid was built around 2560 BCE. Cleopatra lived around 69–30 BCE, roughly 2,500 years later. The Moon landing came about 2,000 years after her.","History isn't a flat 'long ago'; it's very uneven.","Great Pyramid of Giza"],
+["Marketing","The IKEA effect","People value things more when they helped assemble them, even if the result is mediocre. Norton, Mochon and Ariely showed it with flat-pack furniture and origami.","Letting customers contribute raises how much they value the result.","IKEA"],
+["Language","'Quarantine' means forty days","It comes from the Italian 'quaranta giorni'. Venice required ships to wait offshore for 40 days during plague outbreaks.","Everyday words are fossils of medieval trade and health rules.","Quarantine"],
+["Science","Water can boil and freeze at once","At the triple point (0.01 °C and about 0.6% of atmospheric pressure) ice, liquid water and vapour coexist in equilibrium.","States of matter are conditions, not fixed properties.","Triple point"],
+["Money","Goodhart's law","When a measure becomes a target, it stops being a good measure. People optimise the number instead of the thing it was meant to track.","Explains vanity metrics, gamed KPIs and bad incentives.","Goodhart's law"],
+["Nature","Crows remember faces","University of Washington studies found crows recognise individual humans who threatened them, and other crows learn to scold those people too.","Animal cognition is more social and flexible than we assume.","Crow"],
+["History","The shortest war lasted under an hour","The Anglo-Zanzibar War of 27 August 1896 ended after roughly 40 minutes, when the Sultan's palace was shelled by British ships.","It shows how lopsided power was in the age of empire.","Anglo-Zanzibar War"],
+["Science","Sound moves ~4x faster in water","Roughly 1,480 m/s in water versus about 343 m/s in air, because water is much harder to compress.","It's why whales can communicate across vast distances.","Speed of sound"],
+["Marketing","The paradox of choice","In a famous jam study, a table with 24 flavours drew more attention but far fewer purchases than one with 6. Later research found the effect depends on context.","Too many options can stall decisions, but the answer is 'it depends'.","Jam"],
+["Science","A teaspoon of neutron star is absurdly heavy","Neutron star matter is so dense that a teaspoon of it would weigh billions of tons on Earth.","Matter pushed to the limit: atoms crushed into neutrons.","Neutron star"],
+["Mind","Hedonic adaptation","We get used to both good and bad changes, and happiness tends to drift back toward a baseline. The new car or the raise feels less special over time.","Experiences often hold their value longer than purchases.","Hedonic treadmill"],
+["Money","Why free trials convert","Loss aversion means giving up something you have feels worse than never getting it. Once a trial user has the product, cancelling feels like a loss.","Ownership feelings change behaviour before any price is paid.","Loss aversion"],
+["Language","Italian has a polite 'you'","Italian uses 'Lei' for formal 'you', which grammatically is third-person feminine singular. The older 'voi' is still used in some regions.","Politeness is built into grammar, not just vocabulary.","Italian language"]
+].map(a=>({cat:a[0],title:a[1],body:a[2],why:a[3],wiki:a[4]}));
+
+const $=s=>document.querySelector(s);
+const feed=$('#feed'),chips=$('#chips'),savedEl=$('#saved');
+const ls={get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let S=ls.get('bs_settings',{key:'',model:'claude-haiku-5-5'});
+let saved=ls.get('bs_saved',[]), gen=ls.get('bs_gen',[]).filter(x=>x&&x.title&&CATS[x.cat]!==undefined);
+let imgCache=ls.get('bs_img',{});
+let cat='Mix', loading=false, autoOff=false, items;
+const key=i=>i.title.toLowerCase();
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+items=shuffle(SEED.concat(gen));
+const isSaved=i=>saved.some(s=>key(s)===key(i));
+const visible=()=>cat==='Mix'?items:items.filter(i=>i.cat===cat);
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),2600)}
+
+/* ---------- Claude API (own key) ---------- */
+async function claude(prompt,max){
+  if(!S.key){const e=new Error('nokey');e.code='nokey';throw e}
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'content-type':'application/json','x-api-key':S.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:S.model,max_tokens:max||1600,messages:[{role:'user',content:prompt}]})});
+  if(!r.ok){let m='';try{m=(await r.json()).error.message}catch(e){}const e=new Error(m||('HTTP '+r.status));e.code=r.status;throw e}
+  const j=await r.json();return (j.content||[]).map(c=>c.text||'').join('');
+}
+
+/* ---------- Real photos from Wikipedia ---------- */
+async function wikiImage(title){
+  if(!title)return null;
+  if(title in imgCache)return imgCache[title]||null;
+  try{
+    const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(title.replace(/ /g,'_'))+'?redirect=true');
+    if(!r.ok)throw 0;
+    const j=await r.json();
+    let u=j.thumbnail&&j.thumbnail.source;
+    if(u)u=u.replace(/\/(\d+)px-/,'/900px-');
+    imgCache[title]=u||0;ls.set('bs_img',imgCache);return u||null;
+  }catch(e){return null}
+}
+async function paintImage(card){
+  const it=card.__item;if(!it||card.__img)return;card.__img=true;
+  const u=it.img||await wikiImage(it.wiki);if(!u)return;
+  const bg=card.querySelector('.bg'),pre=new Image();
+  pre.onload=()=>{bg.style.backgroundImage='url("'+u+'")';bg.classList.add('on');card.querySelector('.ico').style.display='none';card.querySelector('.credit').textContent='Photo: Wikipedia'};
+  pre.onerror=()=>{};pre.src=u;
+}
+
+/* ---------- Cards ---------- */
+function cardEl(it){
+  const d=document.createElement('article');d.className='card';
+  d.innerHTML='<div class="face"><div class="bg"></div><div class="ico"></div><div class="shade"></div><div class="tag"></div><div class="credit"></div>'
+   +'<div class="text"><h2></h2><p class="body"></p><p class="why"><b>Why it matters · </b><span></span></p></div>'
+   +'<div class="acts"><button class="act sv"><i>'+svg('heart')+'</i><span>Save</span></button><button class="act mr"><i>'+svg('chat')+'</i><span>More</span></button><a class="act ph" target="_blank" rel="noopener"><i>'+svg('ext')+'</i><span>Photos</span></a></div></div>';
+  d.querySelector('.face').style.setProperty('--h',CATS[it.cat]);
+  d.querySelector('.ico').textContent=EMO[it.cat]||'✨';
+  d.querySelector('.tag').textContent=it.cat;
+  d.querySelector('h2').textContent=it.title;
+  d.querySelector('.body').textContent=it.body;
+  d.querySelector('.why span').textContent=it.why||'';
+  d.querySelector('.ph').href='https://www.google.com/search?tbm=isch&q='+encodeURIComponent(it.title);
+  const sv=d.querySelector('.sv'),paint=()=>sv.classList.toggle('on',isSaved(it));paint();
+  sv.onclick=()=>{if(isSaved(it))saved=saved.filter(s=>key(s)!==key(it));else saved.push(it);ls.set('bs_saved',saved);paint();badge()};
+  d.querySelector('.mr').onclick=()=>openMore(it);
+  d.__item=it;return d;
+}
+function endEl(){
+  const d=document.createElement('article');d.className='card endc';d.id='end';
+  d.innerHTML='<div class="box"><h2>You\'ve seen them all</h2><p></p><button class="btn" id="endBtn"></button></div>';
+  d.querySelector('p').textContent='Fetching more for you…';
+  const b=d.querySelector('#endBtn');b.textContent='✨ Fresh facts';
+  b.onclick=()=>loadMore(true);
+  return d;
+}
+let io;
+function render(){
+  feed.innerHTML='';visible().forEach(i=>feed.appendChild(cardEl(i)));feed.appendChild(endEl());feed.scrollTop=0;observe();
+  const f=feed.querySelector('.card');if(f&&f.__item)paintImage(f);
+}
+function observe(){
+  if(io)io.disconnect();
+  io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting)return;const c=e.target;if(!c.__item)return;
+    paintImage(c);
+    const cs=[...feed.querySelectorAll('.card:not(.endc)')],idx=cs.indexOf(c);
+    for(let k=idx+1;k<=idx+2&&k<cs.length;k++)paintImage(cs[k]);
+    if(cs.length-idx<=3)loadMore(false);
+  }),{root:feed,threshold:.6});
+  feed.querySelectorAll('.card').forEach(c=>io.observe(c));
+}
+
+/* ---------- Fresh facts ---------- */
+async function loadMore(manual){
+  if(manual)autoOff=false;
+  if(loading||(autoOff&&!manual))return;
+  if(!S.key)return loadWiki(manual);
+  loading=true;const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Writing…';eb.disabled=true}
+  $('#btnFresh').style.opacity=.5;
+  const have=items.map(i=>i.title).slice(-60).join('; ');
+  const topic=cat==='Mix'?'a varied mix of: '+Object.keys(CATS).join(', '):cat;
+  const prompt='Write 8 short, surprising "did you know" cards for a curious adult. Topic: '+topic+'.\n'
+   +'Rules: only well-established facts you are confident about; no invented statistics or studies; where a finding is debated, say so. Do not repeat: '+have+'.\n'
+   +'Return ONLY a JSON array of 8 objects with keys: cat (one of '+Object.keys(CATS).join('|')+'), title (max 8 words, a hook), body (1-2 sentences, max 40 words), why (one sentence, max 22 words), wiki (the exact title of an English Wikipedia article about an object, animal, place, substance or concept that illustrates the fact; never a living person). English only.';
+  try{
+    const txt=await claude(prompt,1800);
+    const m=txt.match(/\[[\s\S]*\]/);const arr=m?JSON.parse(m[0]):[];
+    const have2=new Set(items.map(key));
+    const fresh=arr.filter(x=>x&&x.title&&x.body&&CATS[x.cat]!==undefined&&!have2.has(key(x))).map(x=>({cat:x.cat,title:String(x.title),body:String(x.body),why:String(x.why||''),wiki:x.wiki?String(x.wiki):''}));
+    if(fresh.length){
+      items.push(...fresh);gen.push(...fresh);ls.set('bs_gen',gen.slice(-200));
+      const end=$('#end');
+      fresh.filter(i=>cat==='Mix'||i.cat===cat).forEach(i=>{const el=cardEl(i);feed.insertBefore(el,end);io.observe(el)});
+      if(manual)toast(fresh.length+' new facts added');
+    }
+  }catch(e){
+    autoOff=true;
+    if(e.code==='nokey')toast('Add your API key in Settings');
+    else if(e.code===401)toast('API key was rejected. Check it in Settings.');
+    else if(e.code===429)toast('Rate limited. Try again in a minute.');
+    else if(manual||!navigator.onLine)toast(navigator.onLine?'Could not load fresh facts':'You are offline');
+  }
+  loading=false;$('#btnFresh').style.opacity=1;
+  const b=$('#endBtn');if(b){b.disabled=false;b.textContent='✨ Fresh facts'}
+}
+
+
+/* ---------- Free mode: Wikipedia ---------- */
+async function wikiFeed(have){
+  const out=[];
+  const add=o=>{if(o&&o.title&&!have.has(key(o))){have.add(key(o));out.push(o)}};
+  const clip=t=>{t=(t||'').replace(/\s+/g,' ').trim();if(t.length<=250)return t;const c=t.slice(0,250),i=c.lastIndexOf('. ');return i>110?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…'};
+  const cap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):'';
+  const big=u=>u.replace(/\/(\d+)px-/,'/900px-');
+  const d=new Date(),today=d.toISOString().slice(0,10);
+  if(ls.get('bs_otd','')!==today){
+    try{
+      const r=await fetch('https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+      const j=await r.json();
+      (j.events||[]).filter(e=>e.pages&&e.pages[0]&&e.pages[0].thumbnail).sort(()=>Math.random()-.5).slice(0,5).forEach(e=>{
+        const p=e.pages[0];
+        add({cat:'History',title:'On this day in '+e.year,body:clip(e.text),why:cap(p.description||''),wiki:p.title,img:big(p.thumbnail.source)});
+      });
+      ls.set('bs_otd',today);
+    }catch(e){}
+  }
+  const rs=await Promise.all(Array.from({length:14},()=>fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)));
+  rs.forEach(j=>{
+    if(!j||j.type!=='standard'||!j.thumbnail||!j.extract||j.extract.length<140)return;
+    if(/\(born\s|\(\d{3,4}\s*[–—-]\s*\d{3,4}\)|\bborn\b/i.test(j.extract.slice(0,140)))return;
+    add({cat:'Discover',title:j.title,body:clip(j.extract),why:cap(j.description||''),wiki:j.title,img:big(j.thumbnail.source)});
+  });
+  return out.slice(0,10);
+}
+async function loadWiki(manual){
+  loading=true;$('#btnFresh').style.opacity=.5;
+  const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Loading…';eb.disabled=true}
+  try{
+    const fresh=await wikiFeed(new Set(items.map(key)));
+    if(fresh.length){
+      items.push(...fresh);gen.push(...fresh);ls.set('bs_gen',gen.slice(-200));
+      const end=$('#end');
+      fresh.filter(i=>cat==='Mix'||i.cat===cat).forEach(i=>{const el=cardEl(i);feed.insertBefore(el,end);io.observe(el)});
+      if(manual)toast(fresh.length+' new facts added');
+    }else if(manual)toast('Nothing new right now, try again');
+  }catch(e){autoOff=true;if(manual)toast(navigator.onLine?'Could not load more':'You are offline')}
+  loading=false;$('#btnFresh').style.opacity=1;
+  const b=$('#endBtn');if(b){b.disabled=false;b.textContent='✨ Fresh facts'}
+}
+
+/* ---------- More ---------- */
+async function openMore(it){
+  $('#moreTitle').textContent=it.title;const b=$('#moreBody');$('#sheetMore').classList.add('show');
+  if(it.more){b.textContent=it.more;return}
+  if(!S.key){
+    b.innerHTML='<span class="spin"></span>Loading…';
+    try{const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent((it.wiki||it.title).replace(/ /g,'_')));const j=await r.json();it.more=(j.extract||'No more detail available.')+'\n\nSource: Wikipedia';b.textContent=it.more}catch(e){b.textContent='Could not load more right now.'}
+    return;
+  }
+  b.innerHTML='<span class="spin"></span>Thinking…';
+  try{
+    const t=await claude('Expand this fact in 90-120 words of plain text, no markdown: a bit more context, one genuinely interesting detail, and one practical way to use the idea. If you are unsure about a detail, leave it out.\n\nFact: '+it.title+'. '+it.body,600);
+    it.more=t.trim();b.textContent=it.more;
+  }catch(e){b.textContent=e.code===401?'API key was rejected. Check it in Settings.':'Could not load more right now.'}
+}
+
+/* ---------- Chips, tabs, saved, settings ---------- */
+function renderChips(){
+  chips.innerHTML='';['Mix',...Object.keys(CATS)].forEach(c=>{
+    const b=document.createElement('button');b.className='chip'+(c===cat?' on':'');b.textContent=c;
+    b.onclick=()=>{cat=c;renderChips();render()};chips.appendChild(b)});
+}
+function badge(){$('#tSaved').innerHTML=svg('heart')+(saved.length?'<span class="dot" style="position:relative;display:none"></span>':'')}
+function renderSaved(){
+  savedEl.innerHTML='';
+  if(!saved.length){savedEl.innerHTML='<p class="empty">Nothing saved yet.<br>Tap the heart on a fact to keep it here.</p>';return}
+  saved.slice().reverse().forEach(it=>{
+    const d=document.createElement('div');d.className='s';
+    d.innerHTML='<div class="th"></div><div><div class="tg"></div><h3></h3><p></p><button>Remove</button></div>';
+    const th=d.querySelector('.th');th.textContent=EMO[it.cat]||'✨';
+    const tu=it.img||(it.wiki&&imgCache[it.wiki]);if(tu){th.textContent='';th.style.backgroundImage='url("'+tu+'")'}
+    d.querySelector('.tg').textContent=it.cat;d.querySelector('h3').textContent=it.title;d.querySelector('p').textContent=it.body;
+    d.querySelector('button').onclick=()=>{saved=saved.filter(s=>key(s)!==key(it));ls.set('bs_saved',saved);renderSaved()};
+    savedEl.appendChild(d);
+  });
+}
+function show(t){
+  const f=t==='feed';feed.style.display=f?'':'none';chips.style.display=f?'':'none';savedEl.style.display=f?'none':'block';
+  $('#tFeed').classList.toggle('on',f);$('#tSaved').classList.toggle('on',!f);
+  if(!f)renderSaved();
+}
+$('#tFeed').innerHTML=svg('home');$('#tSettings').innerHTML=svg('sliders');$('#btnFresh').innerHTML=svg('spark');badge();
+$('#tFeed').onclick=()=>show('feed');$('#tSaved').onclick=()=>show('saved');
+$('#btnFresh').onclick=()=>{show('feed');loadMore(true)};
+function openSet(){$('#inKey').value=S.key||'';$('#inModel').value=S.model||'claude-haiku-5-5';$('#sheetSet').classList.add('show')}
+$('#tSettings').onclick=openSet;
+$('#setClose').onclick=()=>$('#sheetSet').classList.remove('show');
+$('#setSave').onclick=()=>{S={key:$('#inKey').value.trim(),model:$('#inModel').value};ls.set('bs_settings',S);autoOff=false;$('#sheetSet').classList.remove('show');toast(S.key?'Saved':'Key removed');render();loadMore(false)};
+$('#setClear').onclick=()=>{saved=[];gen=[];ls.set('bs_saved',[]);ls.set('bs_gen',[]);items=shuffle(SEED);$('#sheetSet').classList.remove('show');toast('Cleared');render()};
+$('#moreClose').onclick=()=>$('#sheetMore').classList.remove('show');
+['sheetSet','sheetMore'].forEach(id=>$('#'+id).addEventListener('click',e=>{if(e.target.id===id)e.target.classList.remove('show')}));
+
+renderChips();render();
+loadMore(false);
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>

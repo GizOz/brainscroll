@@ -100,14 +100,21 @@ nav button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#f
 
 <div class="sheet" id="sheetSet"><div class="panel">
   <h3>Settings</h3>
-  <p>Free by default: new facts and photos come from Wikipedia, no account needed. Optional: add your own Anthropic API key to get facts written by Claude instead. The key stays on this phone and is only sent to Anthropic.</p>
-  <label>Anthropic API key (optional)</label>
-  <input id="inKey" type="password" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
-  <label>Model</label>
-  <select id="inModel">
-    <option value="claude-haiku-5-5">Claude Haiku 5.5 (fast, cheapest)</option>
-    <option value="claude-sonnet-5-5">Claude Sonnet 5.5 (better writing)</option>
-  </select>
+  <p>Without a key you get trending facts from Wikipedia. For an endless feed of fresh facts, add a free Google Gemini key (get one at aistudio.google.com/apikey) or your own Anthropic key. Keys stay on this phone and are only sent to the provider you choose.</p>
+  <label>Fact writer</label>
+  <select id="inProv"><option value="gemini">Google Gemini (free tier)</option><option value="anthropic">Anthropic Claude (paid)</option></select>
+  <div id="gBox">
+    <label>Gemini API key</label>
+    <input id="inG" type="password" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Gemini model</label>
+    <input id="inGM" type="text" placeholder="gemini-flash-lite-latest" autocapitalize="off" spellcheck="false">
+  </div>
+  <div id="aBox" style="display:none">
+    <label>Anthropic API key</label>
+    <input id="inKey" type="password" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label>Model</label>
+    <select id="inModel"><option value="claude-haiku-5-5">Claude Haiku 5.5 (fast, cheapest)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 (better writing)</option></select>
+  </div>
   <div class="row"><button class="btn" id="setSave">Save</button><button class="btn ghost" id="setClose">Close</button></div>
   <div class="row"><button class="btn ghost" id="setClear">Clear saved &amp; generated facts</button></div>
 </div></div>
@@ -225,6 +232,18 @@ async function claude(prompt,max){
   const j=await r.json();return (j.content||[]).map(c=>c.text||'').join('');
 }
 
+const prov=()=>S.provider||(S.key?'anthropic':'gemini');
+const hasLLM=()=>prov()==='anthropic'?!!S.key:!!S.gkey;
+async function gemini(prompt,max){
+  if(!S.gkey){const e=new Error('nokey');e.code='nokey';throw e}
+  const m=S.gmodel||'gemini-flash-lite-latest';
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent?key='+encodeURIComponent(S.gkey),{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:max||1600,temperature:1}})});
+  if(!r.ok){let msg='';try{msg=(await r.json()).error.message}catch(e){}const e=new Error(msg||('HTTP '+r.status));e.code=r.status;throw e}
+  const j=await r.json();return ((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||'').join('');
+}
+const llm=(prompt,max)=>prov()==='anthropic'?claude(prompt,max):gemini(prompt,max);
+
 /* ---------- Real photos from Wikipedia ---------- */
 async function wikiImage(title){
   if(!title)return null;
@@ -293,7 +312,7 @@ function observe(){
 async function loadMore(manual){
   if(manual)autoOff=false;
   if(loading||(autoOff&&!manual))return;
-  if(!S.key)return loadWiki(manual);
+  if(!hasLLM())return loadWiki(manual);
   loading=true;const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Writing…';eb.disabled=true}
   $('#btnFresh').style.opacity=.5;
   const have=items.map(i=>i.title).slice(-60).join('; ');
@@ -303,7 +322,7 @@ async function loadMore(manual){
    +'Make them trendy, popular, unique and surprising, things people will want to repeat: everyday life, food, money psychology, tech and internet culture, pop culture, travel, animals, body and brain. Avoid dry textbook trivia and the most overused facts. Only well-established facts you are confident about; no invented statistics or studies; if something is debated, say so. Do not repeat: '+have+'.\n'
    +'Return ONLY a JSON array of 8 objects with keys: cat (one of '+cats.join('|')+'), title (max 9 words, a hook), body (1-2 sentences, max 40 words), say (one natural sentence a person could say out loud to start the conversation, max 24 words), wiki (exact title of an English Wikipedia article about an object, animal, place, food or concept that illustrates it; never a living person). English only.';
   try{
-    const txt=await claude(prompt,1800);
+    const txt=await llm(prompt,2400);
     const m=txt.match(/\[[\s\S]*\]/);const arr=m?JSON.parse(m[0]):[];
     const have2=new Set(items.map(key));
     const fresh=arr.filter(x=>x&&x.title&&x.body&&CATS[x.cat]!==undefined&&!have2.has(key(x))).map(x=>({cat:x.cat,title:String(x.title),body:String(x.body),why:String(x.say||x.why||''),wiki:x.wiki?String(x.wiki):''}));
@@ -316,7 +335,7 @@ async function loadMore(manual){
   }catch(e){
     autoOff=true;
     if(e.code==='nokey')toast('Add your API key in Settings');
-    else if(e.code===401)toast('API key was rejected. Check it in Settings.');
+    else if(e.code===401||e.code===400||e.code===403)toast('API key was rejected. Check it in Settings.');
     else if(e.code===429)toast('Rate limited. Try again in a minute.');
     else if(manual||!navigator.onLine)toast(navigator.onLine?'Could not load fresh facts':'You are offline');
   }
@@ -372,16 +391,16 @@ async function loadWiki(manual){
 async function openMore(it){
   $('#moreTitle').textContent=it.title;const b=$('#moreBody');$('#sheetMore').classList.add('show');
   if(it.more){b.textContent=it.more;return}
-  if(!S.key){
+  if(!hasLLM()){
     b.innerHTML='<span class="spin"></span>Loading…';
     try{const r=await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent((it.wiki||it.title).replace(/ /g,'_')));const j=await r.json();it.more=(j.extract||'No more detail available.')+'\n\nSource: Wikipedia';b.textContent=it.more}catch(e){b.textContent='Could not load more right now.'}
     return;
   }
   b.innerHTML='<span class="spin"></span>Thinking…';
   try{
-    const t=await claude('Expand this fact in 90-120 words of plain text, no markdown: a bit more context, one genuinely interesting detail, and one practical way to use the idea. If you are unsure about a detail, leave it out.\n\nFact: '+it.title+'. '+it.body,600);
+    const t=await llm('Expand this fact in 90-120 words of plain text, no markdown: a bit more context, one genuinely interesting detail, and one practical way to use the idea. If you are unsure about a detail, leave it out.\n\nFact: '+it.title+'. '+it.body,600);
     it.more=t.trim();b.textContent=it.more;
-  }catch(e){b.textContent=e.code===401?'API key was rejected. Check it in Settings.':'Could not load more right now.'}
+  }catch(e){b.textContent=(e.code===401||e.code===400||e.code===403)?'API key was rejected. Check it in Settings.':'Could not load more right now.'}
 }
 
 /* ---------- Chips, tabs, saved, settings ---------- */
@@ -412,10 +431,12 @@ function show(t){
 $('#tFeed').innerHTML=svg('home');$('#tSettings').innerHTML=svg('sliders');$('#btnFresh').innerHTML=svg('spark');badge();
 $('#tFeed').onclick=()=>show('feed');$('#tSaved').onclick=()=>show('saved');
 $('#btnFresh').onclick=()=>{show('feed');loadMore(true)};
-function openSet(){$('#inKey').value=S.key||'';$('#inModel').value=S.model||'claude-haiku-5-5';$('#sheetSet').classList.add('show')}
+function syncBoxes(){const g=$('#inProv').value==='gemini';$('#gBox').style.display=g?'':'none';$('#aBox').style.display=g?'none':''}
+function openSet(){$('#inProv').value=prov();$('#inG').value=S.gkey||'';$('#inGM').value=S.gmodel||'';$('#inKey').value=S.key||'';$('#inModel').value=S.model||'claude-haiku-5-5';syncBoxes();$('#sheetSet').classList.add('show')}
+$('#inProv').onchange=syncBoxes;
 $('#tSettings').onclick=openSet;
 $('#setClose').onclick=()=>$('#sheetSet').classList.remove('show');
-$('#setSave').onclick=()=>{S={key:$('#inKey').value.trim(),model:$('#inModel').value};ls.set('bs_settings',S);autoOff=false;$('#sheetSet').classList.remove('show');toast(S.key?'Saved':'Key removed');render();loadMore(false)};
+$('#setSave').onclick=()=>{S={provider:$('#inProv').value,key:$('#inKey').value.trim(),model:$('#inModel').value,gkey:$('#inG').value.trim(),gmodel:$('#inGM').value.trim()};ls.set('bs_settings',S);autoOff=false;$('#sheetSet').classList.remove('show');toast(hasLLM()?'Saved. Fetching fresh facts…':'Saved');render();loadMore(false)};
 $('#setClear').onclick=()=>{saved=[];gen=[];ls.set('bs_saved',[]);ls.set('bs_gen',[]);items=shuffle(SEED);$('#sheetSet').classList.remove('show');toast('Cleared');render()};
 $('#moreClose').onclick=()=>$('#sheetMore').classList.remove('show');
 ['sheetSet','sheetMore'].forEach(id=>$('#'+id).addEventListener('click',e=>{if(e.target.id===id)e.target.classList.remove('show')}));

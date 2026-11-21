@@ -342,13 +342,10 @@ async function wikiFeed(have){
       const r=await fetch('https://en.wikipedia.org/api/rest_v1/feed/featured/'+y+'/'+m+'/'+dd);
       if(!r.ok)continue;
       const j=await r.json();
-      const arts=((j.mostread&&j.mostread.articles)||[]).filter(a=>!skip.test(a.article||'')).slice(0,40);
-      const pick=arts.sort(()=>Math.random()-.5).slice(0,12);
-      const sums=await Promise.all(pick.map(a=>fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(a.article)).then(r=>r.ok?r.json():null).catch(()=>null)));
-      sums.forEach((s,i)=>{
-        if(!s||s.type!=='standard'||!s.extract||s.extract.length<80||out.length>=6)return;
-        const isP=person(s.extract);
-        add({cat:'Trending',title:'Trending now: '+s.title,body:clip(s.extract),why:fmt(pick[i].views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:s.title,img:(!isP&&s.thumbnail)?big(s.thumbnail.source):'',noimg:!!(isP||!s.thumbnail)});
+      const arts=((j.mostread&&j.mostread.articles)||[]).filter(a=>a&&a.title&&!skip.test(a.title)&&a.type==='standard'&&a.extract&&a.extract.length>=80).slice(0,40);
+      arts.sort(()=>Math.random()-.5).slice(0,6).forEach(a=>{
+        const t=a.title.replace(/_/g,' '),isP=person(a.extract);
+        add({cat:'Trending',title:'Trending now: '+t,body:clip(a.extract),why:fmt(a.views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:a.title,img:(!isP&&a.thumbnail)?big(a.thumbnail.source):'',noimg:!!(isP||!a.thumbnail)});
       });
       if(out.length)break;
     }catch(e){}

@@ -345,7 +345,7 @@ async function wikiFeed(have){
       const arts=((j.mostread&&j.mostread.articles)||[]).filter(a=>a&&a.title&&!skip.test(a.title)&&a.type==='standard'&&a.extract&&a.extract.length>=80).slice(0,40);
       arts.sort(()=>Math.random()-.5).slice(0,6).forEach(a=>{
         const t=a.title.replace(/_/g,' '),isP=person(a.extract);
-        add({cat:'Trending',title:'Trending now: '+t,body:clip(a.extract),why:fmt(a.views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:a.title,img:(!isP&&a.thumbnail)?big(a.thumbnail.source):'',noimg:!!(isP||!a.thumbnail)});
+        add({cat:'Trending',title:'Trending now: '+t,body:clip(a.extract),why:fmt(a.views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:a.title,img:'',noimg:true});
       });
       if(out.length)break;
     }catch(e){}

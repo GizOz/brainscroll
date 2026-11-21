@@ -332,7 +332,7 @@ async function wikiFeed(have){
   const clip=t=>{t=(t||'').replace(/\s+/g,' ').trim();if(t.length<=250)return t;const c=t.slice(0,250),i=c.lastIndexOf('. ');return i>110?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…'};
   const cap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):'';
   const big=u=>u.replace(/\/(\d+)px-/,'/960px-');
-  const person=t=>/\(born\s|\(\d{3,4}\s*[–—-]\s*\d{3,4}\)|\bborn\b/i.test((t||'').slice(0,160));
+  const person=t=>/\bborn\b|\d{4}\s*[–—-]\s*\d{4}|\bdied\b|\b(?:is|was) an? [A-Za-z-]+ (?:actor|actress|singer|rapper|businessman|businessperson|politician|footballer|photographer|musician|athlete|comedian|entrepreneur|executive|director|producer|writer|author|model|engineer)/i.test((t||'').slice(0,300));
   const skip=/^(Main_Page|Special:|Wikipedia:|Portal:|Help:|File:|Category:|List_of|Deaths_in|\d{4}_in_)/;
   const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
   // Trending: most-read Wikipedia articles (yesterday), a good proxy for what people are talking about

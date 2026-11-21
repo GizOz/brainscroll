@@ -131,34 +131,73 @@ const IC={
 };
 const svg=n=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>';
 
-const CATS={Discover:25,Mind:340,Marketing:18,Science:205,Nature:140,History:32,Language:285,Money:160};
-const EMO={Discover:'🔭',Mind:'🧠',Marketing:'📣',Science:'🔬',Nature:'🌿',History:'🏛️',Language:'🗣️',Money:'💰'};
+const CATS={Trending:12,Brain:340,Body:355,Food:25,Money:150,Tech:215,Culture:280,Travel:185,Animals:110,Science:245,History:38,Language:320};
+const EMO={Trending:'🔥',Brain:'🧠',Body:'🫀',Food:'🍜',Money:'💰',Tech:'📱',Culture:'🎬',Travel:'🧭',Animals:'🐙',Science:'🔭',History:'🏛️',Language:'🗣️'};
 const SEED=[
-["Mind","The Zeigarnik effect","People tend to remember unfinished tasks better than finished ones. An open loop keeps nagging at your attention until it is closed.","It's why cliffhangers and 'you left something in your cart' work.","Zeigarnik effect"],
-["Nature","Octopuses have three hearts","Two pump blood through the gills, one pumps it around the body. Their blood is blue because it carries oxygen with copper-based hemocyanin instead of iron-based hemoglobin.","Evolution solved oxygen transport more than one way.","Octopus"],
-["Science","Honey barely spoils","Its low water content and acidity make it a hostile place for microbes. Sealed honey found in ancient Egyptian tombs was still preserved after thousands of years.","Preservation is often about chemistry, not refrigeration.","Honey"],
-["History","Oxford is older than the Aztec Empire","Teaching at Oxford is documented from around 1096. The Aztec city of Tenochtitlan was founded in 1325.","Our sense of 'ancient' is often off by centuries.","University of Oxford"],
-["Money","The Rule of 72","Divide 72 by an annual return percentage to estimate how many years it takes money to double. At 6% it's about 12 years; at 9%, about 8.","A 30-second mental shortcut for judging any growth rate.","Compound interest"],
-["Language","Hebrew came back from the dead","Hebrew stopped being an everyday spoken language centuries ago, but was revived as a mother tongue in the late 19th and 20th centuries.","One of the very few revived languages at national scale.","Hebrew language"],
-["Marketing","The decoy effect","Add a third option that is clearly worse than one of two existing choices, and people shift toward the option it makes look better.","Pricing tables are persuasion architecture, not just lists.","Decoy effect"],
-["Science","Bananas are slightly radioactive","They contain potassium, and a tiny fraction of natural potassium is the radioactive isotope potassium-40. The dose is far too small to matter.","Radiation is everywhere in tiny amounts; dose is what counts.","Banana"],
-["Science","A day on Venus is longer than its year","Venus rotates once every ~243 Earth days but orbits the Sun in ~225. It also spins backwards compared with most planets.","'Day' and 'year' are definitions that other worlds break.","Venus"],
-["Mind","The peak-end rule","We judge an experience mostly by its most intense moment and by how it ended, not by the average of every moment or its length.","A strong finish can rescue a mediocre experience.","Peak–end rule"],
-["Nature","Wombats make cube-shaped droppings","The shape forms in their intestines, and wombats stack the cubes to mark territory.","Biology can make shapes you'd assume need a mold.","Wombat"],
-["Science","Your brain is an energy hog","The brain is about 2% of body weight but uses roughly 20% of the body's energy at rest.","Mental fatigue is real; sleep and food affect thinking.","Human brain"],
-["History","Cleopatra lived closer to the Moon landing than to the Great Pyramid","The Great Pyramid was built around 2560 BCE. Cleopatra lived around 69–30 BCE, roughly 2,500 years later. The Moon landing came about 2,000 years after her.","History isn't a flat 'long ago'; it's very uneven.","Great Pyramid of Giza"],
-["Marketing","The IKEA effect","People value things more when they helped assemble them, even if the result is mediocre. Norton, Mochon and Ariely showed it with flat-pack furniture and origami.","Letting customers contribute raises how much they value the result.","IKEA"],
-["Language","'Quarantine' means forty days","It comes from the Italian 'quaranta giorni'. Venice required ships to wait offshore for 40 days during plague outbreaks.","Everyday words are fossils of medieval trade and health rules.","Quarantine"],
-["Science","Water can boil and freeze at once","At the triple point (0.01 °C and about 0.6% of atmospheric pressure) ice, liquid water and vapour coexist in equilibrium.","States of matter are conditions, not fixed properties.","Triple point"],
-["Money","Goodhart's law","When a measure becomes a target, it stops being a good measure. People optimise the number instead of the thing it was meant to track.","Explains vanity metrics, gamed KPIs and bad incentives.","Goodhart's law"],
-["Nature","Crows remember faces","University of Washington studies found crows recognise individual humans who threatened them, and other crows learn to scold those people too.","Animal cognition is more social and flexible than we assume.","Crow"],
-["History","The shortest war lasted under an hour","The Anglo-Zanzibar War of 27 August 1896 ended after roughly 40 minutes, when the Sultan's palace was shelled by British ships.","It shows how lopsided power was in the age of empire.","Anglo-Zanzibar War"],
-["Science","Sound moves ~4x faster in water","Roughly 1,480 m/s in water versus about 343 m/s in air, because water is much harder to compress.","It's why whales can communicate across vast distances.","Speed of sound"],
-["Marketing","The paradox of choice","In a famous jam study, a table with 24 flavours drew more attention but far fewer purchases than one with 6. Later research found the effect depends on context.","Too many options can stall decisions, but the answer is 'it depends'.","Jam"],
-["Science","A teaspoon of neutron star is absurdly heavy","Neutron star matter is so dense that a teaspoon of it would weigh billions of tons on Earth.","Matter pushed to the limit: atoms crushed into neutrons.","Neutron star"],
-["Mind","Hedonic adaptation","We get used to both good and bad changes, and happiness tends to drift back toward a baseline. The new car or the raise feels less special over time.","Experiences often hold their value longer than purchases.","Hedonic treadmill"],
-["Money","Why free trials convert","Loss aversion means giving up something you have feels worse than never getting it. Once a trial user has the product, cancelling feels like a loss.","Ownership feelings change behaviour before any price is paid.","Loss aversion"],
-["Language","Italian has a polite 'you'","Italian uses 'Lei' for formal 'you', which grammatically is third-person feminine singular. The older 'voi' is still used in some regions.","Politeness is built into grammar, not just vocabulary.","Italian language"]
+["Brain","You can't tickle yourself","Your brain predicts the sensation of your own movements and dampens it. Someone else's touch is unpredictable, so it still gets through.","Fun fact: you literally can't tickle yourself. Your brain cancels it out.","Tickling"],
+["Brain","Each of your eyes has a blind spot","Where the optic nerve leaves the eye there are no light sensors. You never notice because your brain quietly fills the gap with a guess.","Right now your brain is making up a small part of what you see.","Blind spot (vision)"],
+["Brain","Once you learn a word, you see it everywhere","It's called the frequency illusion (often nicknamed Baader-Meinhof). The thing wasn't suddenly more common, you just started noticing it.","Ever learn something new and then see it three times in one week? That's a real effect.","Frequency illusion"],
+["Brain","Nobody notices your outfit as much as you think","In a well-known study, students wore an embarrassing T-shirt and guessed about half of the room noticed. Only about a quarter did.","Relax about that stain. Studies say people notice about half as much as you fear.","Spotlight effect"],
+["Brain","The more you hear a song, the more you like it","Psychologists call it the mere-exposure effect: familiarity alone makes us warmer toward people, songs and logos.","That's why a song you hated in week one is your favourite by week four.","Mere-exposure effect"],
+["Brain","Unfinished things stay stuck in your head","The Zeigarnik effect: we tend to remember interrupted tasks better than completed ones. Open loops keep nagging at us.","That's why cliffhangers work, and why your to-do list never leaves you alone.","Zeigarnik effect"],
+["Brain","We remember the peak and the end","The peak-end rule: we judge an experience mostly by its most intense moment and how it ended, not by its average or length.","A great last 10 minutes can save a mediocre trip. Always end on a high.","Peak–end rule"],
+["Body","You're taller in the morning","The discs in your spine compress through the day, so you can lose around a centimetre or two by evening and regain it overnight.","You're literally taller right after waking up.","Intervertebral disc"],
+["Body","Goosebumps are a leftover from fur","Tiny muscles pull each hair upright. In furry ancestors that made them look bigger or kept them warm. In us it does almost nothing.","Goosebumps are basically a feature for a fur coat we don't have anymore.","Goose bumps"],
+["Body","Your nose runs when you cry","Tears drain through small ducts into the nose, which is why crying gives you a runny nose.","Your tears and your runny nose are the same fluid, just taking different exits.","Tears"],
+["Body","Your brain burns about 20% of your energy","It's around 2% of your body weight but uses roughly a fifth of the energy you burn at rest.","Feeling drained after a day of thinking is real: your brain is the most expensive organ you own.","Human brain"],
+["Food","Ketchup was once sold as medicine","In the 1830s, a doctor marketed tomato ketchup pills as a cure for stomach complaints.","Ketchup started out as a remedy, not a topping.","Ketchup"],
+["Food","Fortune cookies aren't really Chinese","They're generally traced to Japanese-American bakeries in California in the early 1900s and were popularised by Chinese-American restaurants.","Fun one for your next Chinese dinner: you won't find fortune cookies in China.","Fortune cookie"],
+["Food","Coffee beans are not beans","They're the seeds of the coffee cherry, a small fruit. They're called beans because of their shape.","Technically your morning coffee is a fruit seed.","Coffee bean"],
+["Food","Most 'wasabi' isn't wasabi","Real wasabi is rare and costly. The green paste at many sushi places is horseradish with mustard and colouring.","Next sushi night: that green stuff is probably horseradish.","Wasabi"],
+["Food","Espresso isn't a type of bean","It's a way of making coffee: hot water forced through finely ground coffee under pressure. Any roast can be used.","Espresso is a method, not a bean. Many people mix that up.","Espresso"],
+["Food","Honey barely spoils","Low water content and acidity make it hostile to microbes. Sealed honey from ancient Egyptian tombs was still preserved thousands of years later.","Honey is one of the few foods that essentially never goes off.","Honey"],
+["Food","Bananas are slightly radioactive","They contain potassium, and a tiny fraction of natural potassium is radioactive. The dose is far too small to matter.","Every banana you eat is mildly radioactive. Totally harmless, but a great party fact.","Banana"],
+["Money","The Rule of 72","Divide 72 by a yearly return to estimate how many years it takes money to double. At 6% it's about 12 years, at 9% about 8.","Quick trick: 72 divided by the interest rate tells you how fast money doubles.","Compound interest"],
+["Money","Why prices end in .99","The left-digit effect: we read $9.99 as '9 dollars and something', not 'nearly 10', so it feels meaningfully cheaper.","$9.99 vs $10 is only one cent, but your brain treats it like a whole dollar.","Psychological pricing"],
+["Money","The first number you hear sticks","Anchoring: an early number, even a random one, pulls later estimates toward it. It's why the first price in a negotiation matters so much.","If you're negotiating, say the first number. It anchors everything after it.","Anchoring effect"],
+["Money","The decoy effect","Add a clearly worse third option and people shift toward the one it makes look better. Subscription pricing pages use this a lot.","Ever wonder why there's a weird middle plan? It's there to make the big one look smart.","Decoy effect"],
+["Money","We love what we build ourselves","The IKEA effect: people value things more when they helped make them, even if the result is mediocre.","That's why the shelf you built feels better than a nicer one you bought.","IKEA"],
+["Money","Einstein probably never said that about compound interest","The famous line calling compound interest the eighth wonder of the world has no solid evidence behind it.","Fun myth-buster: that Einstein compound interest quote probably isn't his.","Compound interest"],
+["Money","Work expands to fill the time you give it","Parkinson's law: give yourself a week for a task and it will somehow take a week. Give it a day and often it fits.","Want to finish faster? Shorten the deadline.","Parkinson's law"],
+["Money","When a measure becomes a target, it breaks","Goodhart's law: people optimise the number instead of the thing it was meant to measure.","That's why chasing likes or KPIs often makes things worse, not better.","Goodhart's law"],
+["Tech","The first webcam watched a coffee pot","In 1991, Cambridge researchers pointed a camera at their office coffee pot so colleagues could check if it was full before walking over.","The first live webcam on the internet was for checking whether the coffee was ready.","Trojan Room coffee pot"],
+["Tech","Bluetooth is named after a Viking king","Harald 'Bluetooth' Gormsson united parts of Denmark and Norway. The logo merges his initials in Viking runes.","Your headphones are named after a Viking king who united tribes.","Bluetooth"],
+["Tech","Wi-Fi doesn't stand for anything","It's often said to mean 'wireless fidelity', but it was just a catchy brand name chosen by a marketing agency.","Plot twist: Wi-Fi isn't short for anything.","Wi-Fi"],
+["Tech","Your phone out-computes Apollo by millions","The Apollo Guidance Computer had around 4 KB of working memory. A modern phone has millions of times more.","We went to the Moon with less computing power than your phone's calculator.","Apollo Guidance Computer"],
+["Tech","The word 'robot' is Czech","It comes from a 1920 play by Karel Čapek. 'Robota' means forced labour.","'Robot' literally comes from a Czech word for hard labour.","Robot"],
+["Tech","The first computer 'bug' was a real moth","In 1947 a moth got stuck in a Harvard computer and was taped into the logbook. The term 'bug' was already used, but this made it famous.","The first computer bug was a literal bug.","Software bug"],
+["Culture","The first YouTube video is 19 seconds long","'Me at the zoo' was uploaded on 23 April 2005. It shows a co-founder standing in front of elephants at a zoo.","The very first YouTube video is 19 seconds of someone talking about elephants.","Me at the zoo"],
+["Culture","Netflix began by mailing DVDs","It launched in 1997 as a DVD-by-mail rental service. Streaming only started in 2007.","Netflix is basically a DVD mailing company that outlived everyone.","Netflix"],
+["Culture","The Mona Lisa became famous because it was stolen","It was stolen from the Louvre in 1911 and found in 1913. The huge press coverage turned it into a global icon.","The Mona Lisa got famous partly because someone stole it.","Mona Lisa"],
+["Culture","'Emoji' has nothing to do with 'emotion'","It's Japanese: 'e' (picture) plus 'moji' (character). The first set was created in Japan in 1999.","Emoji isn't from 'emotion', it just means 'picture character'.","Emoji"],
+["Culture","Lego bricks from 1958 still fit today","The modern brick design dates from 1958, and bricks from then still connect with new ones.","Lego bricks from your grandparents' era still click with today's.","Lego"],
+["Culture","Barbie has a full name","Barbie's full name in the official story is Barbara Millicent Roberts, from a fictional town in Wisconsin.","Barbie's real name is Barbara Millicent Roberts.","Barbie"],
+["Travel","France has the most time zones in the world","Counting its overseas territories, France spans 12 time zones, more than any other country.","Tiny France actually covers more time zones than Russia.","Time in France"],
+["Travel","You can float in the Dead Sea","Its shore is about 430 metres below sea level, the lowest land on Earth, and the water is so salty you float effortlessly.","The Dead Sea is the lowest dry land on Earth, and you can't sink in it.","Dead Sea"],
+["Travel","The Eiffel Tower grows in summer","Heat expands the iron, so the tower can be about 15 centimetres taller on a hot day.","The Eiffel Tower is taller in summer.","Eiffel Tower"],
+["Travel","Finland has about one sauna for every two people","Roughly 3 million saunas for about 5.5 million people. They're in homes, offices and apartment blocks.","In Finland even office buildings have saunas.","Sauna"],
+["Travel","Venice is built on wooden piles","Buildings stand on wooden piles driven deep into the mud. Because they stay underwater, they harden rather than rot.","Venice is basically a city standing on a forest turned upside down.","Venice"],
+["Animals","Octopuses have three hearts","Two pump blood to the gills, one to the body. Their blood is blue because it uses copper to carry oxygen.","Octopuses have three hearts and blue blood.","Octopus"],
+["Animals","Cows have best friends","Studies suggest cows form preferred friendships and show lower stress when kept near their favourites.","Cows get stressed when separated from their best friend.","Cattle"],
+["Animals","Sea otters hold hands when they sleep","They float in groups called rafts and hold paws so they don't drift apart.","Sea otters hold hands while sleeping so they don't float away.","Sea otter"],
+["Animals","A group of flamingos is a flamboyance","It's the official collective noun, and it fits.","A group of flamingos is called a flamboyance.","Flamingo"],
+["Animals","Sharks are older than trees","Sharks date back around 450 million years. The first trees appeared roughly 350 to 390 million years ago.","Sharks have been around longer than trees.","Shark"],
+["Animals","Crows remember faces","Studies at the University of Washington found crows recognise people who threatened them, and other crows learn to scold those people too.","Crows can hold a grudge against your face.","Crow"],
+["Animals","Wombats make cube-shaped poop","The shape forms in their intestines, and wombats stack the cubes to mark territory.","Wombats are the only animals that make cube-shaped poop.","Wombat"],
+["Science","The Sun you see is 8 minutes old","Sunlight takes about 8 minutes and 20 seconds to reach Earth, so you're always seeing the Sun as it was a few minutes ago.","If the Sun vanished, you wouldn't know for 8 minutes.","Sun"],
+["Science","A day on Venus is longer than its year","Venus rotates once every ~243 Earth days but orbits the Sun in ~225. It also spins backwards.","On Venus a day lasts longer than a year.","Venus"],
+["Science","Hot water might freeze faster than cold","The Mpemba effect is reported in some experiments, but scientists still disagree about whether and why it happens.","Scientists are still arguing about whether hot water freezes faster than cold.","Mpemba effect"],
+["Science","Astronauts say space smells like burnt steak","After spacewalks, astronauts have described the smell on their suits as seared steak, hot metal or welding.","Space apparently smells like burnt steak, according to astronauts.","Outer space"],
+["Science","A teaspoon of neutron star weighs billions of tons","Neutron star matter is so dense that a teaspoon would weigh billions of tons on Earth.","A teaspoon of a neutron star weighs more than all humans combined.","Neutron star"],
+["History","Oxford is older than the Aztec Empire","Teaching at Oxford is documented from around 1096. The Aztec city of Tenochtitlan was founded in 1325.","Oxford University is older than the Aztec Empire.","University of Oxford"],
+["History","Cleopatra lived closer to the Moon landing than to the Great Pyramid","The Great Pyramid was built around 2560 BCE. Cleopatra lived about 2,500 years later, and the Moon landing came about 2,000 years after her.","Cleopatra lived closer in time to the Moon landing than to the building of the Great Pyramid.","Great Pyramid of Giza"],
+["History","The shortest war lasted under an hour","The Anglo-Zanzibar War of 27 August 1896 ended after roughly 40 minutes.","The shortest war in history lasted less than an hour.","Anglo-Zanzibar War"],
+["History","Vikings didn't wear horned helmets","There's no good evidence they did. The image comes largely from 19th-century art and opera costumes.","Vikings never wore horned helmets. That was invented later.","Horned helmet"],
+["History","The Great Wall isn't visible from space","It's long but narrow, and it blends into its surroundings. Astronauts say it's very hard or impossible to see with the naked eye from orbit.","The 'visible from space' claim about the Great Wall is a myth.","Great Wall of China"],
+["History","Napoleon wasn't actually short","He was around 1.68 to 1.70 metres, about average for a Frenchman of his time. The myth was boosted by British caricatures and unit confusion.","Napoleon wasn't short. That's a myth.","Napoleon complex"],
+["Language","'OK' began as a joke in 1839","It started in Boston as a humorous abbreviation of the misspelling 'oll korrect' and spread after a political campaign picked it up.","'OK' started as a joke abbreviation of a deliberate misspelling.","OK"],
+["Language","Hebrew came back from the dead","It stopped being an everyday spoken language long ago, but was revived as a mother tongue in the late 19th and 20th centuries.","Hebrew is one of the only languages ever revived as a national mother tongue.","Hebrew language"],
+["Language","'Quarantine' means forty days","It comes from the Italian 'quaranta giorni'. Venice required ships to wait offshore for 40 days during plague outbreaks.","'Quarantine' literally means 'forty days' in Italian.","Quarantine"]
 ].map(a=>({cat:a[0],title:a[1],body:a[2],why:a[3],wiki:a[4]}));
 
 const $=s=>document.querySelector(s);
@@ -200,7 +239,7 @@ async function wikiImage(title){
   }catch(e){return null}
 }
 async function paintImage(card){
-  const it=card.__item;if(!it||card.__img)return;card.__img=true;
+  const it=card.__item;if(!it||card.__img)return;card.__img=true;if(it.noimg)return;
   let u=it.img||await wikiImage(it.wiki);if(!u)return;u=u.replace('/900px-','/960px-');
   const bg=card.querySelector('.bg'),pre=new Image();
   pre.onload=()=>{bg.style.backgroundImage='url("'+u+'")';bg.classList.add('on');card.querySelector('.ico').style.display='none';card.querySelector('.credit').textContent='Photo: Wikipedia'};
@@ -211,9 +250,9 @@ async function paintImage(card){
 function cardEl(it){
   const d=document.createElement('article');d.className='card';
   d.innerHTML='<div class="face"><div class="bg"></div><div class="ico"></div><div class="shade"></div><div class="tag"></div><div class="credit"></div>'
-   +'<div class="text"><h2></h2><p class="body"></p><p class="why"><b>Why it matters · </b><span></span></p></div>'
+   +'<div class="text"><h2></h2><p class="body"></p><p class="why"><b>Say it · </b><span></span></p></div>'
    +'<div class="acts"><button class="act sv"><i>'+svg('heart')+'</i><span>Save</span></button><button class="act mr"><i>'+svg('chat')+'</i><span>More</span></button><a class="act ph" target="_blank" rel="noopener"><i>'+svg('ext')+'</i><span>Photos</span></a></div></div>';
-  d.querySelector('.face').style.setProperty('--h',CATS[it.cat]);
+  d.querySelector('.face').style.setProperty('--h',CATS[it.cat]??25);
   d.querySelector('.ico').textContent=EMO[it.cat]||'✨';
   d.querySelector('.tag').textContent=it.cat;
   d.querySelector('h2').textContent=it.title;
@@ -258,15 +297,16 @@ async function loadMore(manual){
   loading=true;const eb=$('#endBtn');if(eb&&manual){eb.innerHTML='<span class="spin"></span>Writing…';eb.disabled=true}
   $('#btnFresh').style.opacity=.5;
   const have=items.map(i=>i.title).slice(-60).join('; ');
-  const topic=cat==='Mix'?'a varied mix of: '+Object.keys(CATS).join(', '):cat;
-  const prompt='Write 8 short, surprising "did you know" cards for a curious adult. Topic: '+topic+'.\n'
-   +'Rules: only well-established facts you are confident about; no invented statistics or studies; where a finding is debated, say so. Do not repeat: '+have+'.\n'
-   +'Return ONLY a JSON array of 8 objects with keys: cat (one of '+Object.keys(CATS).join('|')+'), title (max 8 words, a hook), body (1-2 sentences, max 40 words), why (one sentence, max 22 words), wiki (the exact title of an English Wikipedia article about an object, animal, place, substance or concept that illustrates the fact; never a living person). English only.';
+  const cats=Object.keys(CATS).filter(c=>c!=='Trending');
+  const topic=cat==='Mix'||cat==='Trending'?'a varied mix of: '+cats.join(', '):cat;
+  const prompt='Write 8 cards of conversation-worthy facts a person can drop into small talk with friends or at dinner. Topic: '+topic+'.\n'
+   +'Make them trendy, popular, unique and surprising, things people will want to repeat: everyday life, food, money psychology, tech and internet culture, pop culture, travel, animals, body and brain. Avoid dry textbook trivia and the most overused facts. Only well-established facts you are confident about; no invented statistics or studies; if something is debated, say so. Do not repeat: '+have+'.\n'
+   +'Return ONLY a JSON array of 8 objects with keys: cat (one of '+cats.join('|')+'), title (max 9 words, a hook), body (1-2 sentences, max 40 words), say (one natural sentence a person could say out loud to start the conversation, max 24 words), wiki (exact title of an English Wikipedia article about an object, animal, place, food or concept that illustrates it; never a living person). English only.';
   try{
     const txt=await claude(prompt,1800);
     const m=txt.match(/\[[\s\S]*\]/);const arr=m?JSON.parse(m[0]):[];
     const have2=new Set(items.map(key));
-    const fresh=arr.filter(x=>x&&x.title&&x.body&&CATS[x.cat]!==undefined&&!have2.has(key(x))).map(x=>({cat:x.cat,title:String(x.title),body:String(x.body),why:String(x.why||''),wiki:x.wiki?String(x.wiki):''}));
+    const fresh=arr.filter(x=>x&&x.title&&x.body&&CATS[x.cat]!==undefined&&!have2.has(key(x))).map(x=>({cat:x.cat,title:String(x.title),body:String(x.body),why:String(x.say||x.why||''),wiki:x.wiki?String(x.wiki):''}));
     if(fresh.length){
       items.push(...fresh);gen.push(...fresh);ls.set('bs_gen',gen.slice(-200));
       const end=$('#end');
@@ -292,25 +332,28 @@ async function wikiFeed(have){
   const clip=t=>{t=(t||'').replace(/\s+/g,' ').trim();if(t.length<=250)return t;const c=t.slice(0,250),i=c.lastIndexOf('. ');return i>110?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…'};
   const cap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):'';
   const big=u=>u.replace(/\/(\d+)px-/,'/960px-');
-  const d=new Date(),today=d.toISOString().slice(0,10);
-  if(ls.get('bs_otd','')!==today){
+  const person=t=>/\(born\s|\(\d{3,4}\s*[–—-]\s*\d{3,4}\)|\bborn\b/i.test((t||'').slice(0,160));
+  const skip=/^(Main_Page|Special:|Wikipedia:|Portal:|Help:|File:|Category:|List_of|Deaths_in|\d{4}_in_)/;
+  const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
+  // Trending: most-read Wikipedia articles (yesterday), a good proxy for what people are talking about
+  for(const back of [1,2]){
     try{
-      const r=await fetch('https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0'));
+      const d=new Date(Date.now()-back*864e5),y=d.getUTCFullYear(),m=String(d.getUTCMonth()+1).padStart(2,'0'),dd=String(d.getUTCDate()).padStart(2,'0');
+      const r=await fetch('https://en.wikipedia.org/api/rest_v1/feed/featured/'+y+'/'+m+'/'+dd);
+      if(!r.ok)continue;
       const j=await r.json();
-      (j.events||[]).filter(e=>e.pages&&e.pages[0]&&e.pages[0].thumbnail).sort(()=>Math.random()-.5).slice(0,5).forEach(e=>{
-        const p=e.pages[0];
-        add({cat:'History',title:'On this day in '+e.year,body:clip(e.text),why:cap(p.description||''),wiki:p.title,img:big(p.thumbnail.source)});
+      const arts=((j.mostread&&j.mostread.articles)||[]).filter(a=>!skip.test(a.article||'')).slice(0,40);
+      const pick=arts.sort(()=>Math.random()-.5).slice(0,12);
+      const sums=await Promise.all(pick.map(a=>fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(a.article)).then(r=>r.ok?r.json():null).catch(()=>null)));
+      sums.forEach((s,i)=>{
+        if(!s||s.type!=='standard'||!s.extract||s.extract.length<80||out.length>=6)return;
+        const isP=person(s.extract);
+        add({cat:'Trending',title:'Trending now: '+s.title,body:clip(s.extract),why:fmt(pick[i].views)+' people looked this up yesterday. Ask a friend if they have heard about it.',wiki:s.title,img:(!isP&&s.thumbnail)?big(s.thumbnail.source):'',noimg:!!(isP||!s.thumbnail)});
       });
-      ls.set('bs_otd',today);
+      if(out.length)break;
     }catch(e){}
   }
-  const rs=await Promise.all(Array.from({length:14},()=>fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)));
-  rs.forEach(j=>{
-    if(!j||j.type!=='standard'||!j.thumbnail||!j.extract||j.extract.length<140)return;
-    if(/\(born\s|\(\d{3,4}\s*[–—-]\s*\d{3,4}\)|\bborn\b/i.test(j.extract.slice(0,140)))return;
-    add({cat:'Discover',title:j.title,body:clip(j.extract),why:cap(j.description||''),wiki:j.title,img:big(j.thumbnail.source)});
-  });
-  return out.slice(0,10);
+  return out;
 }
 async function loadWiki(manual){
   loading=true;$('#btnFresh').style.opacity=.5;
@@ -322,7 +365,7 @@ async function loadWiki(manual){
       const end=$('#end');
       fresh.filter(i=>cat==='Mix'||i.cat===cat).forEach(i=>{const el=cardEl(i);feed.insertBefore(el,end);io.observe(el)});
       if(manual)toast(fresh.length+' new facts added');
-    }else if(manual)toast('Nothing new right now, try again');
+    }else{if(!manual)autoOff=true;else toast('Nothing new right now, try again')}
   }catch(e){autoOff=true;if(manual)toast(navigator.onLine?'Could not load more':'You are offline')}
   loading=false;$('#btnFresh').style.opacity=1;
   const b=$('#endBtn');if(b){b.disabled=false;b.textContent='✨ Fresh facts'}

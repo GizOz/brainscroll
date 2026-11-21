@@ -195,16 +195,16 @@ async function wikiImage(title){
     if(!r.ok)throw 0;
     const j=await r.json();
     let u=j.thumbnail&&j.thumbnail.source;
-    if(u)u=u.replace(/\/(\d+)px-/,'/900px-');
+    if(u)u=u.replace(/\/(\d+)px-/,'/960px-');
     imgCache[title]=u||0;ls.set('bs_img',imgCache);return u||null;
   }catch(e){return null}
 }
 async function paintImage(card){
   const it=card.__item;if(!it||card.__img)return;card.__img=true;
-  const u=it.img||await wikiImage(it.wiki);if(!u)return;
+  let u=it.img||await wikiImage(it.wiki);if(!u)return;
   const bg=card.querySelector('.bg'),pre=new Image();
   pre.onload=()=>{bg.style.backgroundImage='url("'+u+'")';bg.classList.add('on');card.querySelector('.ico').style.display='none';card.querySelector('.credit').textContent='Photo: Wikipedia'};
-  pre.onerror=()=>{};pre.src=u;
+  pre.onerror=()=>{if(/\/960px-/.test(pre.src)&&!pre.__r){pre.__r=1;u=u.replace('/960px-','/500px-');pre.src=u}};pre.src=u;
 }
 
 /* ---------- Cards ---------- */
@@ -291,7 +291,7 @@ async function wikiFeed(have){
   const add=o=>{if(o&&o.title&&!have.has(key(o))){have.add(key(o));out.push(o)}};
   const clip=t=>{t=(t||'').replace(/\s+/g,' ').trim();if(t.length<=250)return t;const c=t.slice(0,250),i=c.lastIndexOf('. ');return i>110?c.slice(0,i+1):c.replace(/\s+\S*$/,'')+'…'};
   const cap=t=>t?t.charAt(0).toUpperCase()+t.slice(1):'';
-  const big=u=>u.replace(/\/(\d+)px-/,'/900px-');
+  const big=u=>u.replace(/\/(\d+)px-/,'/960px-');
   const d=new Date(),today=d.toISOString().slice(0,10);
   if(ls.get('bs_otd','')!==today){
     try{
